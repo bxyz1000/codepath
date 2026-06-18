@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePath — Custom Roadmap Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
+
+    /* Styling tokens */
+    :root {
+      /* Dark mode default */
+      --bg: #0d0f11;
+      --card: #15181c;
+      --card-rgb: 21, 24, 28;
+      --text: #ffffff;
+      --text-sec: #8a9ba8;
+      --accent: #e8895a;
+      --accent-rgb: 232, 137, 90;
+      --success: #7a9b76;
+      --success-rgb: 122, 155, 118;
+      --border: #22262a;
+      --glow: rgba(232, 137, 90, 0.15);
+      --sidebar-width: 260px;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8f6f0;
+      --card: #ffffff;
+      --card-rgb: 255, 255, 255;
+      --text: #16191c;
+      --text-sec: #5b6b7a;
+      --accent: #1773cf;
+      --accent-rgb: 23, 115, 207;
+      --success: #4d8c57;
+      --success-rgb: 77, 140, 87;
+      --border: #e6dec9;
+      --glow: rgba(23, 115, 207, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-sec);
+    }
+
+    /* App Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      background-color: rgba(var(--card-rgb), 0.85);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), #f7b05b);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 10px var(--glow);
+    }
+
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--text), var(--text-sec));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: var(--text-sec);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(var(--accent-rgb), 0.05);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background-color: rgba(var(--accent-rgb), 0.1);
+      color: var(--accent);
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+      fill: none;
+      stroke: currentColor;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background-color: var(--border);
+      margin: 20px 0;
+    }
+
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-sec);
+    }
+
+    .sidebar-stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .sidebar-stat-box {
+      background-color: rgba(var(--accent-rgb), 0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .sidebar-stat-val {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .sidebar-stat-lbl {
+      display: block;
+      font-size: 10px;
+      color: var(--text-sec);
+      margin-top: 2px;
+    }
+
+    .sidebar-current-card {
+      background-color: rgba(var(--accent-rgb), 0.03);
+      border: 1px dashed var(--accent);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .current-stop-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .current-stop-desc {
+      font-size: 11px;
+      color: var(--text-sec);
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-sec);
+      font-weight: 600;
+    }
+
+    .setting-item.flex-col {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .ai-provider-toggle-container {
+      display: flex;
+      width: 100%;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2px;
+      border-radius: 8px;
+    }
+
+    .ai-provider-toggle-container button {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-sec);
+      padding: 6px 0;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-provider-toggle-container button.active {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(var(--accent-rgb), 0.05);
+      border-color: var(--accent);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .mobile-header {
+      display: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .screen-content {
+      flex: 1;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08) 0%, rgba(var(--accent-rgb), 0.01) 100%);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .banner-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .banner-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background-color: rgba(var(--card-rgb), 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      position: relative;
+    }
+
+    .card.active-card {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .add-video-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--glow);
+    }
+
+    .search-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .search-btn:hover {
+      background-color: rgba(var(--accent-rgb), 0.9);
+    }
+
+    .search-btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 16px;
+      text-decoration: none;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background-color: rgba(var(--accent-rgb), 0.9);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      font-size: 12px;
+      margin-top: 12px;
+      line-height: 1.4;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: rgba(var(--accent-rgb), 0.05);
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      color: var(--accent);
+    }
+
+    /* Stats Row in Dashboard Card */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .stat-box {
+      flex: 1;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Timeline styles (Desktop) */
+    .timeline-course-desktop {
+      background-color: rgba(var(--card-rgb), 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .cat-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .cat-channel {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .delete-btn {
+      background: none;
+      border: 1px solid rgba(217, 83, 79, 0.3);
+      color: #d9534f;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover {
+      background-color: rgba(217, 83, 79, 0.1);
+      border-color: #d9534f;
+    }
+
+    .timeline-scroll-container {
+      overflow-x: auto;
+      padding: 20px 0 10px 0;
+      margin: 0 -10px;
+    }
+
+    .timeline-horizontal-track {
+      display: flex;
+      gap: 24px;
+      padding: 40px 10px;
+      position: relative;
+      min-width: max-content;
+    }
+
+    .timeline-horizontal-track::before {
+      content: '';
+      position: absolute;
+      top: 48px; /* aligns centered with the node */
+      left: 0;
+      right: 0;
+      height: 4px;
+      background-color: var(--border);
+      z-index: 1;
+    }
+
+    .timeline-item-horizontal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 240px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timestamp-badge {
+      background-color: var(--card);
+      border: 2px solid var(--border);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      z-index: 3;
+      transition: all 0.2s;
+    }
+
+    .timeline-item-horizontal.completed .timestamp-badge {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .timeline-item-horizontal.current .timestamp-badge {
+      background-color: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--glow);
+    }
+
+    .timeline-node {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: var(--card);
+      border: 3px solid var(--border);
+      margin-bottom: 16px;
+      z-index: 3;
+      transition: all 0.2s;
+    }
+
+    .timeline-node.completed {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .timeline-node.current {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--glow), 0 0 10px var(--accent);
+    }
+
+    .timeline-card {
+      background-color: rgba(var(--card-rgb), 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      padding: 14px;
+      position: relative;
+      display: flex;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .timeline-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border-color: var(--accent);
+    }
+
+    .timeline-item-horizontal.completed .timeline-card {
+      border-color: rgba(var(--success-rgb), 0.3);
+    }
+
+    .timeline-item-horizontal.current .timeline-card {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--glow);
+    }
+
+    .card-left-accent {
+      width: 4px;
+      background-color: var(--accent);
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .timeline-item-horizontal.completed .card-left-accent,
+    .timeline-item-vertical.completed .card-left-accent {
+      background-color: var(--success);
+    }
+
+    .card-content {
+      padding-left: 8px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .timeline-item-horizontal.completed .card-item-title,
+    .timeline-item-vertical.completed .card-item-title {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-notes-btn {
+      font-size: 11px;
+      color: var(--text-sec);
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .item-notes-btn:hover {
+      color: var(--text);
+    }
+
+    .item-notes-btn.has-notes {
+      color: var(--accent);
+    }
+
+    .item-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-sec);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+      user-select: none;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .item-checkbox.checked {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    /* Mobile Vertical Timeline styles */
+    .timeline-course-mobile {
+      background-color: rgba(var(--card-rgb), 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .timeline-vertical-container {
+      position: relative;
+      width: 100%;
+      padding: 20px 0;
+    }
+
+    .timeline-vertical-track {
+      position: relative;
+      width: 100%;
+    }
+
+    .timeline-vertical-track::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background-color: var(--border);
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .timeline-item-vertical {
+      display: flex;
+      position: relative;
+      width: 100%;
+      margin-bottom: 40px;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .timeline-item-vertical .timeline-card {
+      width: calc(50% - 30px);
+    }
+
+    .timeline-item-vertical.left {
+      justify-content: flex-start;
+    }
+
+    .timeline-item-vertical.left .timeline-card {
+      margin-right: auto;
+    }
+
+    .timeline-item-vertical.right {
+      justify-content: flex-end;
+    }
+
+    .timeline-item-vertical.right .timeline-card {
+      margin-left: auto;
+    }
+
+    .timestamp-badge-vertical {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--card);
+      border: 2px solid var(--border);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      z-index: 5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+
+    .timeline-item-vertical.completed .timestamp-badge-vertical {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .timeline-item-vertical.current .timestamp-badge-vertical {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 0 10px var(--glow);
+    }
+
+    .timeline-node-vertical {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .timeline-node-vertical.current {
+      box-shadow: 0 0 15px 4px var(--glow);
+      background-color: rgba(var(--accent-rgb), 0.2);
+      animation: pulse 2s infinite;
+    }
+
+    .timeline-connector-vertical {
+      position: absolute;
+      top: 50%;
+      height: 2px;
+      background-color: var(--border);
+      width: 15px;
+      z-index: 2;
+    }
+
+    .timeline-item-vertical.left .timeline-connector-vertical {
+      right: calc(50% - 15px);
+    }
+
+    .timeline-item-vertical.right .timeline-connector-vertical {
+      left: calc(50% - 15px);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.95);
+        box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7);
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(0.95);
+        box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0);
+      }
+    }
+
+    /* Search results preview */
+    .result-preview {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--text-sec);
+    }
+
+    .search-card {
+      margin-bottom: 24px;
+    }
+
+    .search-placeholder {
+      font-size: 14px;
+      color: var(--text-sec);
+      font-style: italic;
+      text-align: center;
+      margin-top: 40px;
+      line-height: 1.6;
+    }
+
+    /* Mobile settings & bottom tabs styles */
+    .mobile-tabs {
+      display: none;
+    }
+
+    .mobile-only-settings {
+      display: none;
+    }
+
+    /* Responsive styling */
+    @media (max-width: 767px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+        padding-bottom: 80px; /* space for bottom tab bar */
+      }
+
+      .sidebar {
+        display: none !important;
+      }
+
+      .main-content {
+        padding: 24px 16px;
+        height: auto;
+        overflow-y: visible;
+        gap: 24px;
+      }
+
+      .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 16px;
+        margin-bottom: 8px;
+      }
+
+      .top-bar {
+        display: none; /* we use mobile header */
+      }
+
+      .mobile-only-settings {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        font-size: 11px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .mobile-tabs {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background-color: var(--card);
+        border-top: 1px solid var(--border);
+        justify-content: space-around;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+      }
+
+      .mobile-tab-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-sec);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+        flex: 1;
+        padding: 8px 0;
+        transition: color 0.2s;
+      }
+
+      .mobile-tab-item.active {
+        color: var(--accent);
+      }
+
+      .mobile-tab-icon {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+        fill: none;
+        stroke: currentColor;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .timeline-vertical-track::before {
+        left: 20px;
+        transform: none;
+      }
+
+      .timeline-item-vertical {
+        justify-content: flex-start;
+      }
+
+      .timeline-item-vertical .timeline-card {
+        width: calc(100% - 50px);
+        margin-left: 50px !important;
+        margin-right: 0 !important;
+      }
+
+      .timestamp-badge-vertical {
+        left: 20px;
+        transform: translate(-50%, -50%);
+      }
+
+      .timeline-node-vertical {
+        left: 20px;
+        transform: translate(-50%, -50%);
+      }
+
+      .timeline-connector-vertical {
+        left: 20px;
+        width: 30px;
+      }
+    }
+
+    /* Notes Modal Overlay */
+    .notes-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .notes-modal-content {
+      width: 100%;
+      max-width: 460px;
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: scaleUp 0.2s ease-out;
+    }
+
+    @keyframes scaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .notes-textarea {
+      width: 100%;
+      height: 160px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      margin-top: 12px;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .notes-textarea:focus {
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- Sidebar (Desktop only) -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-icon">C</div>
+        <span class="logo-text">CodePath</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a class="nav-item active" id="side-tab-dashboard" onclick="switchTab('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="9" rx="1" />
+            <rect x="14" y="3" width="7" height="5" rx="1" />
+            <rect x="14" y="12" width="7" height="9" rx="1" />
+            <rect x="3" y="16" width="7" height="5" rx="1" />
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" id="side-tab-roadmap" onclick="switchTab('roadmap')">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <circle cx="6" cy="6" r="3" />
+            <circle cx="18" cy="12" r="3" />
+            <circle cx="6" cy="18" r="3" />
+            <path d="M6 9v6M9 6h6M9 18h6" />
+          </svg>
+          <span>Timeline</span>
+        </a>
+        <a class="nav-item" id="side-tab-search" onclick="switchTab('search')">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span>Search Doubt</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-divider"></div>
+      
+      <!-- Stats Area -->
+      <div class="sidebar-section">
+        <h4 class="section-title">Your Progress</h4>
+        <div class="sidebar-stats-row">
+          <div class="sidebar-stat-box">
+            <span class="sidebar-stat-val" id="sidebar-progress">0%</span>
+            <span class="sidebar-stat-lbl">Progress</span>
+          </div>
+          <div class="sidebar-stat-box">
+            <span class="sidebar-stat-val" id="sidebar-streak" style="color: var(--success);">0 Days</span>
+            <span class="sidebar-stat-lbl">Streak</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <!-- Current stop inside sidebar (compact version) -->
+      <div class="sidebar-section">
+        <h4 class="section-title">Current Stop</h4>
+        <div class="sidebar-current-card" id="sidebar-current-stop">
+          <div class="current-stop-title" id="sidebar-current-title">No Course Added</div>
+          <div class="current-stop-desc" id="sidebar-current-module">Paste a YouTube URL to begin!</div>
+        </div>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <!-- Settings inside sidebar -->
+      <div class="sidebar-section">
+        <h4 class="section-title">Settings</h4>
+        <div class="setting-item" style="margin-bottom: 10px;">
+          <span>Theme</span>
+          <button class="theme-toggle" id="sidebar-theme-toggle">Light Theme</button>
+        </div>
+        <div class="setting-item flex-col">
+          <span class="setting-label">AI Provider Model</span>
+          <div class="ai-provider-toggle-container">
+            <button id="sidebar-provider-groq" onclick="setAiProvider('groq')">Groq</button>
+            <button id="sidebar-provider-gemini" onclick="setAiProvider('gemini')">Gemini</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Mobile Header (Mobile only) -->
+      <header class="mobile-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="logo-icon" style="width: 24px; height: 24px; font-size: 13px;">C</div>
+          <span class="logo-text" style="font-size: 18px;">CodePath</span>
+        </div>
+        <button class="theme-toggle" id="mobile-theme-toggle">Light Theme</button>
+      </header>
+
+      <!-- Top bar (Desktop only, responsive displays it none) -->
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title" id="screen-title">Dashboard</h1>
+          <p class="page-subtitle" id="screen-subtitle">Welcome back to your learning dashboard.</p>
+        </div>
+      </div>
+
+      <!-- Dashboard Screen -->
+      <section class="screen-content" id="screen-dashboard">
+        <div class="welcome-banner">
+          <span class="banner-tag">WELCOME BACK,</span>
+          <h2 class="banner-title">Bhavik</h2>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Stats card (visible on dashboard in both mobile & desktop) -->
+          <div class="card">
+            <p class="card-tag">Your Stats</p>
+            <div class="stats-row">
+              <div class="stat-box">
+                <p class="stat-val" id="dashboard-progress">0%</p>
+                <p class="stat-lbl">Progress</p>
+              </div>
+              <div class="stat-box">
+                <p class="stat-val" id="dashboard-streak" style="color: var(--success);">0 Days</p>
+                <p class="stat-lbl">Streak</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add YouTube Course Card -->
+          <div class="card active-card">
+            <p class="card-tag">CREATE CUSTOM ROADMAP</p>
+            <div class="add-video-bar">
+              <input type="text" id="yt-url-input" class="search-input" placeholder="Paste YouTube tutorial URL...">
+              <button class="search-btn" id="add-course-btn" onclick="addYoutubeCourse()">Add</button>
+            </div>
+            <div class="mobile-only-settings">
+              <span style="color: var(--text-sec); font-weight: 700; letter-spacing: 0.5px;">AI MODEL FALLBACK:</span>
+              <div class="ai-provider-toggle-container" style="width: 140px;">
+                <button id="provider-groq" onclick="setAiProvider('groq')">Groq</button>
+                <button id="provider-gemini" onclick="setAiProvider('gemini')">Gemini</button>
+              </div>
+            </div>
+            <p id="add-course-status" class="status-message" style="display: none;"></p>
+          </div>
+
+          <!-- Current Learning Milestone -->
+          <div class="card" id="dashboard-current-card">
+            <p class="card-tag">CURRENT STOP</p>
+            <h3 class="banner-title" id="dashboard-current-title" style="font-size: 18px; line-height: 1.3;">No Course Added</h3>
+            <p style="font-size: 13px; color: var(--text-sec); margin-top: 6px;" id="dashboard-current-module">Paste a YouTube URL above to begin!</p>
+            <button class="btn" id="dashboard-continue-btn" onclick="switchTab('roadmap')" style="display: none;">Continue Learning</button>
+          </div>
+
+          <!-- Up Next Milestone -->
+          <div class="card" id="dashboard-next-card" style="display: none;">
+            <p class="card-tag">UP NEXT</p>
+            <h4 style="font-size: 16px; font-weight: 700;" id="dashboard-next-title">Next subtopic title</h4>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roadmap Screen -->
+      <section class="screen-content" id="screen-roadmap" style="display: none;">
+        <!-- Content populated dynamically -->
+      </section>
+
+      <!-- Doubt Search Screen -->
+      <section class="screen-content" id="screen-search" style="display: none;">
+        <div class="card search-card">
+          <p class="card-tag">ASK DOUBTS ON TRANSCRIPTS</p>
+          <div class="search-box">
+            <input type="text" class="search-input" id="search-query" placeholder="Ask a doubt (e.g. event bubbling)...">
+            <button class="search-btn" id="search-submit">Search</button>
+          </div>
+        </div>
+
+        <div id="search-results-area">
+          <p class="search-placeholder">
+            Ask a doubt to search across the transcripts of all your added YouTube roadmaps.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile only) -->
+    <nav class="mobile-tabs">
+      <a class="mobile-tab-item active" id="tab-dashboard" onclick="switchTab('dashboard')">
+        <svg class="mobile-tab-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="9" rx="1" />
+          <rect x="14" y="3" width="7" height="5" rx="1" />
+          <rect x="14" y="12" width="7" height="9" rx="1" />
+          <rect x="3" y="16" width="7" height="5" rx="1" />
+        </svg>
+        <span class="tab-label">Dashboard</span>
+      </a>
+      <a class="mobile-tab-item" id="tab-roadmap" onclick="switchTab('roadmap')">
+        <svg class="mobile-tab-icon" viewBox="0 0 24 24">
+          <circle cx="6" cy="6" r="3" />
+          <circle cx="18" cy="12" r="3" />
+          <circle cx="6" cy="18" r="3" />
+          <path d="M6 9v6M9 6h6M9 18h6" />
+        </svg>
+        <span class="tab-label">Timeline</span>
+      </a>
+      <a class="mobile-tab-item" id="tab-search" onclick="switchTab('search')">
+        <svg class="mobile-tab-icon" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span class="tab-label">Search</span>
+      </a>
+    </nav>
+
+    <!-- Notes Modal overlay -->
+    <div class="notes-modal-overlay" id="notes-modal">
+      <div class="notes-modal-content">
+        <h3 id="notes-modal-title" style="font-size: 16px; font-weight: 800;">Notes</h3>
+        <textarea id="notes-modal-textarea" class="notes-textarea" placeholder="Paste summaries, type key ideas, or write down questions..."></textarea>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn" style="flex: 1; margin-top: 0; background-color: var(--success);" onclick="saveNotes()">Save Notes</button>
+          <button class="btn" style="flex: 1; margin-top: 0; background-color: var(--text-sec);" onclick="closeNotesModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Variables for holding data
+    let dynamicCourses = [];
+    let ROADMAP_DATA = [];
+    let FLAT_ITEMS = [];
+
+    // Load completed topics and custom notes
+    let completedTopics = JSON.parse(localStorage.getItem('codepath_completed')) || [];
+    let currentNoteId = null;
+
+    // Switch tabs
+    function switchTab(tab) {
+      document.getElementById('screen-dashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
+      document.getElementById('screen-roadmap').style.display = tab === 'roadmap' ? 'block' : 'none';
+      document.getElementById('screen-search').style.display = tab === 'search' ? 'block' : 'none';
+
+      // Toggle active class for mobile tabs
+      const tabDash = document.getElementById('tab-dashboard');
+      const tabRoad = document.getElementById('tab-roadmap');
+      const tabSrc = document.getElementById('tab-search');
+      if (tabDash) tabDash.classList.toggle('active', tab === 'dashboard');
+      if (tabRoad) tabRoad.classList.toggle('active', tab === 'roadmap');
+      if (tabSrc) tabSrc.classList.toggle('active', tab === 'search');
+
+      // Toggle active class for sidebar navigation
+      const sideDash = document.getElementById('side-tab-dashboard');
+      const sideRoad = document.getElementById('side-tab-roadmap');
+      const sideSrc = document.getElementById('side-tab-search');
+      if (sideDash) sideDash.classList.toggle('active', tab === 'dashboard');
+      if (sideRoad) sideRoad.classList.toggle('active', tab === 'roadmap');
+      if (sideSrc) sideSrc.classList.toggle('active', tab === 'search');
+
+      // Update headers/titles
+      const screenTitle = document.getElementById('screen-title');
+      const screenSubtitle = document.getElementById('screen-subtitle');
+      if (screenTitle) {
+        screenTitle.innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+      }
+      if (screenSubtitle) {
+        if (tab === 'dashboard') screenSubtitle.innerText = 'Welcome back to your learning dashboard.';
+        else if (tab === 'roadmap') screenSubtitle.innerText = 'Your personalized course timelines.';
+        else if (tab === 'search') screenSubtitle.innerText = 'Search through video transcripts to resolve doubts.';
+      }
+      
+      if (tab === 'dashboard') {
+        updateDashboardState();
+      }
+    }
+
+    // Toggle completion checkbox
+    function toggleComplete(itemId, event) {
+      if (event) event.stopPropagation();
+      if (completedTopics.includes(itemId)) {
+        completedTopics = completedTopics.filter(id => id !== itemId);
+      } else {
+        completedTopics.push(itemId);
+      }
+      localStorage.setItem('codepath_completed', JSON.stringify(completedTopics));
+      renderRoadmap();
+      updateDashboardState();
+    }
+
+    // Update Dashboard numbers and cards dynamically
+    function updateDashboardState() {
+      const total = FLAT_ITEMS.length;
+      const done = completedTopics.filter(id => FLAT_ITEMS.some(item => item.id === id)).length;
+      const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
+      
+      const progStr = `${percentage}%`;
+      const streakStr = done > 0 ? `${done + 2} Days` : '0 Days';
+      
+      const dp1 = document.getElementById('dashboard-progress');
+      const dp2 = document.getElementById('sidebar-progress');
+      if (dp1) dp1.innerText = progStr;
+      if (dp2) dp2.innerText = progStr;
+      
+      const ds1 = document.getElementById('dashboard-streak');
+      const ds2 = document.getElementById('sidebar-streak');
+      if (ds1) ds1.innerText = streakStr;
+      if (ds2) ds2.innerText = streakStr;
+
+      // Find current stop: first item not completed
+      const currentItem = FLAT_ITEMS.find(item => !completedTopics.includes(item.id));
+      const continueBtn = document.getElementById('dashboard-continue-btn');
+      
+      if (currentItem) {
+        // Update dashboard stop card
+        const dt1 = document.getElementById('dashboard-current-title');
+        const dm1 = document.getElementById('dashboard-current-module');
+        if (dt1) dt1.innerText = currentItem.title;
+        if (dm1) dm1.innerText = currentItem.categoryTitle;
+        if (continueBtn) continueBtn.style.display = 'block';
+        
+        // Update sidebar stop card
+        const sct1 = document.getElementById('sidebar-current-title');
+        const scm1 = document.getElementById('sidebar-current-module');
+        if (sct1) sct1.innerText = currentItem.title;
+        if (scm1) scm1.innerText = currentItem.categoryTitle;
+        
+        // Find next item
+        const currentIndex = FLAT_ITEMS.findIndex(item => item.id === currentItem.id);
+        const nextItem = FLAT_ITEMS[currentIndex + 1];
+        const nextCard = document.getElementById('dashboard-next-card');
+        const nextTitle = document.getElementById('dashboard-next-title');
+        
+        if (nextItem) {
+          if (nextCard) nextCard.style.display = 'block';
+          if (nextTitle) nextTitle.innerText = nextItem.title;
+        } else {
+          if (nextCard) nextCard.style.display = 'none';
+        }
+      } else {
+        if (continueBtn) continueBtn.style.display = 'none';
+        
+        const dt1 = document.getElementById('dashboard-current-title');
+        const dm1 = document.getElementById('dashboard-current-module');
+        const sct1 = document.getElementById('sidebar-current-title');
+        const scm1 = document.getElementById('sidebar-current-module');
+        
+        if (total === 0) {
+          const t1 = "Add a Course Roadmap";
+          const m1 = "Paste a YouTube link above to start!";
+          if (dt1) dt1.innerText = t1;
+          if (dm1) dm1.innerText = m1;
+          if (sct1) sct1.innerText = t1;
+          if (scm1) scm1.innerText = m1;
+          const nextCard = document.getElementById('dashboard-next-card');
+          if (nextCard) nextCard.style.display = 'none';
+        } else {
+          const t1 = "Congratulations! 🎉";
+          const m1 = "All milestones complete!";
+          if (dt1) dt1.innerText = t1;
+          if (dm1) dm1.innerText = m1;
+          if (sct1) sct1.innerText = t1;
+          if (scm1) scm1.innerText = m1;
+          const nextCard = document.getElementById('dashboard-next-card');
+          if (nextCard) nextCard.style.display = 'none';
+        }
+      }
+    }
+
+    // Add YouTube Course Action
+    async function addYoutubeCourse() {
+      const urlInput = document.getElementById('yt-url-input');
+      const statusEl = document.getElementById('add-course-status');
+      const btnEl = document.getElementById('add-course-btn');
+      const urlVal = urlInput.value.trim();
+      
+      if (!urlVal) return;
+      
+      statusEl.style.display = 'block';
+      statusEl.style.color = 'var(--accent)';
+      const providerName = currentProvider === 'gemini' ? 'Gemini AI' : 'Groq AI';
+      statusEl.innerText = `Analyzing video. If no chapters exist, ${providerName} will build milestones from subtitles. This can take 10-15 seconds...`;
+      btnEl.disabled = true;
+      urlInput.disabled = true;
+      
+      try {
+        const response = await fetch('http://localhost:3000/add-video', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url: urlVal })
+        });
+        
+        if (response.ok) {
+          statusEl.style.color = 'var(--success)';
+          statusEl.innerText = 'Success! Custom roadmap generated.';
+          urlInput.value = '';
+          await initData(); // Fetch new list and reload interface
+        } else {
+          const err = await response.json();
+          statusEl.style.color = '#d9534f';
+          statusEl.innerText = 'Error: ' + (err.error || 'Failed to process video');
+        }
+      } catch (err) {
+        statusEl.style.color = '#d9534f';
+        statusEl.innerText = 'Could not connect to backend server. Make sure node server is running on port 3000.';
+      } finally {
+        btnEl.disabled = false;
+        urlInput.disabled = false;
+        setTimeout(() => {
+          statusEl.style.display = 'none';
+        }, 8000);
+      }
+    }
+
+    // Delete Course Action
+    async function deleteCourse(videoId) {
+      if (!confirm('Are you sure you want to remove this course? Your notes and progress for it will be lost.')) return;
+      
+      try {
+        const response = await fetch(`http://localhost:3000/video/${videoId}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          // Clean up completed states
+          completedTopics = completedTopics.filter(id => !id.startsWith(videoId + '_'));
+          localStorage.setItem('codepath_completed', JSON.stringify(completedTopics));
+          
+          // Clean up notes
+          let notes = JSON.parse(localStorage.getItem('codepath_notes')) || {};
+          for (const key in notes) {
+            if (key.startsWith(videoId + '_')) {
+              delete notes[key];
+            }
+          }
+          localStorage.setItem('codepath_notes', JSON.stringify(notes));
+          
+          await initData();
+        } else {
+          alert('Failed to remove course.');
+        }
+      } catch (err) {
+        alert('Could not connect to backend to remove course.');
+      }
+    }
+
+    // Render roadmap timeline items
+    function renderRoadmap() {
+      const container = document.getElementById('screen-roadmap');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (ROADMAP_DATA.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; margin-top: 40px; padding: 40px; background-color: var(--card); border: 1px solid var(--border); border-radius: 16px;">
+            <p style="font-size: 16px; color: var(--text-sec); font-weight: 600;">No Roadmaps Added Yet</p>
+            <p style="font-size: 13px; color: var(--text-sec); margin-top: 8px;">Go to the Dashboard and paste a YouTube tutorial URL to generate a custom roadmap!</p>
+            <button class="btn" onclick="switchTab('dashboard')" style="margin-top: 20px; width: auto; display: inline-block; padding: 10px 24px;">Go to Dashboard</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Find first uncompleted item globally to mark as current stop
+      const currentItem = FLAT_ITEMS.find(item => !completedTopics.includes(item.id));
+      const notesObj = JSON.parse(localStorage.getItem('codepath_notes')) || {};
+      const isDesktop = window.innerWidth >= 768;
+
+      if (isDesktop) {
+        ROADMAP_DATA.forEach(cat => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'timeline-course-desktop';
+          
+          let itemsHtml = cat.items.map(item => {
+            const isDone = completedTopics.includes(item.id);
+            const isCurrent = currentItem && currentItem.id === item.id;
+            const hasNotes = !!notesObj[item.id];
+            
+            return `
+              <div class="timeline-item-horizontal ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                <div class="timestamp-badge">${item.timestamp}</div>
+                <div class="timeline-node ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}"></div>
+                <div class="timeline-card" onclick="window.open('${item.youtubeUrl}', '_blank')">
+                  <div class="card-left-accent"></div>
+                  <div class="card-content">
+                    <span class="card-item-title">${item.title}</span>
+                    <div class="card-actions">
+                      <span class="item-notes-btn ${hasNotes ? 'has-notes' : ''}" onclick="openNotesModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', event)">Notes</span>
+                      <div class="item-checkbox ${isDone ? 'checked' : ''}" onclick="toggleComplete('${item.id}', event)">${isDone ? '✓' : ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          catDiv.innerHTML = `
+            <div class="cat-header">
+              <div>
+                <h3 class="cat-title">${cat.title}</h3>
+                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+              </div>
+              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove Course</button>
+            </div>
+            
+            <div class="timeline-scroll-container">
+              <div class="timeline-horizontal-track">
+                ${itemsHtml}
+              </div>
+            </div>
+          `;
+          container.appendChild(catDiv);
+        });
+      } else {
+        ROADMAP_DATA.forEach(cat => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'timeline-course-mobile';
+          
+          let itemsHtml = cat.items.map((item, index) => {
+            const isDone = completedTopics.includes(item.id);
+            const isCurrent = currentItem && currentItem.id === item.id;
+            const hasNotes = !!notesObj[item.id];
+            const isEven = index % 2 === 0;
+            
+            return `
+              <div class="timeline-item-vertical ${isEven ? 'left' : 'right'} ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                <div class="timestamp-badge-vertical">${item.timestamp}</div>
+                <div class="timeline-node-vertical ${isCurrent ? 'current' : ''}"></div>
+                <div class="timeline-connector-vertical"></div>
+                <div class="timeline-card" onclick="window.open('${item.youtubeUrl}', '_blank')">
+                  <div class="card-left-accent"></div>
+                  <div class="card-content">
+                    <span class="card-item-title">${item.title}</span>
+                    <div class="card-actions">
+                      <span class="item-notes-btn ${hasNotes ? 'has-notes' : ''}" onclick="openNotesModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', event)">Notes</span>
+                      <div class="item-checkbox ${isDone ? 'checked' : ''}" onclick="toggleComplete('${item.id}', event)">${isDone ? '✓' : ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          catDiv.innerHTML = `
+            <div class="cat-header">
+              <div>
+                <h3 class="cat-title">${cat.title}</h3>
+                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+              </div>
+              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove</button>
+            </div>
+            
+            <div class="timeline-vertical-container">
+              <div class="timeline-vertical-track">
+                ${itemsHtml}
+              </div>
+            </div>
+          `;
+          container.appendChild(catDiv);
+        });
+      }
+    }
+
+    // Notes Modal actions
+    function openNotesModal(itemId, itemTitle, event) {
+      if (event) event.stopPropagation();
+      currentNoteId = itemId;
+      document.getElementById('notes-modal-title').innerText = `Notes: ${itemTitle}`;
+      const notes = JSON.parse(localStorage.getItem('codepath_notes')) || {};
+      document.getElementById('notes-modal-textarea').value = notes[itemId] || '';
+      document.getElementById('notes-modal').style.display = 'flex';
+    }
+
+    // Close Notes Modal
+    function closeNotesModal() {
+      document.getElementById('notes-modal').style.display = 'none';
+      currentNoteId = null;
+    }
+
+    // Save Notes Modal Content
+    function saveNotes() {
+      if (!currentNoteId) return;
+      const noteContent = document.getElementById('notes-modal-textarea').value.trim();
+      const notes = JSON.parse(localStorage.getItem('codepath_notes')) || {};
+      
+      if (noteContent) {
+        notes[currentNoteId] = noteContent;
+      } else {
+        delete notes[currentNoteId];
+      }
+      
+      localStorage.setItem('codepath_notes', JSON.stringify(notes));
+      closeNotesModal();
+      renderRoadmap();
+      updateDashboardState();
+    }
+
+    // Light/Dark mode toggle
+    const themeBtn1 = document.getElementById('sidebar-theme-toggle');
+    const themeBtn2 = document.getElementById('mobile-theme-toggle');
+    const handleThemeToggle = () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        if (themeBtn1) themeBtn1.innerText = 'Light Theme';
+        if (themeBtn2) themeBtn2.innerText = 'Light Theme';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        if (themeBtn1) themeBtn1.innerText = 'Dark Theme';
+        if (themeBtn2) themeBtn2.innerText = 'Dark Theme';
+      }
+    };
+    if (themeBtn1) themeBtn1.addEventListener('click', handleThemeToggle);
+    if (themeBtn2) themeBtn2.addEventListener('click', handleThemeToggle);
+
+    // Doubt Search Integration
+    const searchSubmit = document.getElementById('search-submit');
+    const searchInput = document.getElementById('search-query');
+    const resultsArea = document.getElementById('search-results-area');
+
+    searchSubmit.addEventListener('click', async () => {
+      const queryVal = searchInput.value.trim();
+      if (!queryVal) return;
+
+      resultsArea.innerHTML = '<p style="text-align: center; font-size: 13px; color: var(--text-sec); margin-top: 20px;">Searching transcripts...</p>';
+
+      try {
+        const response = await fetch('http://localhost:3000/search-transcript', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query: queryVal })
+        });
+
+        if (response.status === 200) {
+          const data = await response.json();
+          resultsArea.innerHTML = `
+            <div class="card" style="border-color: var(--success); margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; font-weight: 900; color: var(--accent); letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">${data.courseName.toUpperCase()}</span>
+                <span style="background-color: var(--success); color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">${data.timestamp}</span>
+              </div>
+              <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.3;">${data.videoTitle}</h4>
+              <div class="result-preview">"${data.matchText}"</div>
+              <a href="${data.youtubeUrl}" target="_blank" class="btn" style="background-color: #e52d27;">Open in YouTube</a>
+            </div>
+          `;
+        } else {
+          const data = await response.json();
+          resultsArea.innerHTML = `<p style="color: #d9534f; font-size: 13px; text-align: center; margin-top: 20px;">${data.error}</p>`;
+        }
+      } catch (err) {
+        resultsArea.innerHTML = `<p style="color: #d9534f; font-size: 12px; text-align: center; margin-top: 20px;">Could not connect to backend server. Make sure node server is running on port 3000.</p>`;
+      }
+    });
+
+    // Keyboard support for Enter key
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        searchSubmit.click();
+      }
+    });
+
+    document.getElementById('yt-url-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addYoutubeCourse();
+      }
+    });
+
+    // Handle Window Resize to toggle horizontal/vertical timelines
+    let lastWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+      const isDesktopNow = window.innerWidth >= 768;
+      const wasDesktop = lastWidth >= 768;
+      if (isDesktopNow !== wasDesktop) {
+        lastWidth = window.innerWidth;
+        renderRoadmap();
+      }
+    });
+
+    // Initialize all app data from API
+    async function initData() {
+      try {
+        const res = await fetch('http://localhost:3000/videos');
+        if (res.ok) {
+          dynamicCourses = await res.json();
+          
+          // Format into ROADMAP_DATA structure
+          ROADMAP_DATA = dynamicCourses.map(video => ({
+            id: video.videoId,
+            title: video.title,
+            channelTitle: video.channelTitle,
+            items: video.chapters.map(chap => ({
+              id: `${video.videoId}_${chap.seconds}`,
+              title: chap.title,
+              timestamp: chap.timestamp,
+              seconds: chap.seconds,
+              youtubeUrl: `https://www.youtube.com/watch?v=${video.videoId}&t=${chap.seconds}s`
+            }))
+          }));
+
+          // Compute FLAT_ITEMS list
+          FLAT_ITEMS = ROADMAP_DATA.reduce((acc, cat) => {
+            return [...acc, ...cat.items.map(item => ({ ...item, categoryTitle: cat.title }))];
+          }, []);
+        }
+      } catch (err) {
+        console.warn('Backend server down, showing empty roadmap state.', err);
+        ROADMAP_DATA = [];
+        FLAT_ITEMS = [];
+      }
+
+      // Redraw UI components
+      renderRoadmap();
+      updateDashboardState();
+    }
+
+    let currentProvider = 'groq';
+
+    async function fetchAiProvider() {
+      try {
+        const res = await fetch('http://localhost:3000/settings');
+        if (res.ok) {
+          const data = await res.json();
+          updateAiProviderUI(data.aiProvider);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch AI provider settings from server.', err);
+      }
+    }
+
+    async function setAiProvider(provider) {
+      updateAiProviderUI(provider); // optimistic update
+      try {
+        const res = await fetch('http://localhost:3000/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ aiProvider: provider })
+        });
+        if (!res.ok) {
+          console.error('Failed to save AI provider settings on server.');
+        }
+      } catch (err) {
+        console.warn('Could not connect to backend to save settings.', err);
+      }
+    }
+
+    function updateAiProviderUI(provider) {
+      currentProvider = provider;
+      const groqBtn1 = document.getElementById('provider-groq');
+      const geminiBtn1 = document.getElementById('provider-gemini');
+      const groqBtn2 = document.getElementById('sidebar-provider-groq');
+      const geminiBtn2 = document.getElementById('sidebar-provider-gemini');
+      
+      const setActive = (btn, isActive) => {
+        if (!btn) return;
+        if (isActive) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      };
+      
+      setActive(groqBtn1, provider === 'groq');
+      setActive(geminiBtn1, provider === 'gemini');
+      setActive(groqBtn2, provider === 'groq');
+      setActive(geminiBtn2, provider === 'gemini');
+    }
+
+    // Initial load on page ready
+    initData();
+    fetchAiProvider();
+  </script>
+</body>
+</html>
