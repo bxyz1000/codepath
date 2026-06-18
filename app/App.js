@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import { Theme } from './src/theme/colors';
 import { StorageService } from './src/storage/db';
+import { NotificationService } from './src/storage/notificationService';
 
 // Import Screens
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -70,9 +71,25 @@ export default function App() {
   const [completedTopics, setCompletedTopics] = useState([]);
   const [notes, setNotes] = useState({});
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [recentSearches, setRecentSearches] = useState([]);
   const [noteScreenTopic, setNoteScreenTopic] = useState(null); // stores active topic object for NotesScreen
   const [loading, setLoading] = useState(true);
+
+  // Helper to sync the next topic study reminder
+  const syncNotificationSchedule = async (completedList, enabled) => {
+    if (!enabled) {
+      await NotificationService.cancelAllReminders();
+      return;
+    }
+    // Find first topic not completed (which is the currentTopic)
+    const current = FLAT_ROADMAP.find(item => !completedList.includes(item.id)) || null;
+    if (current) {
+      await NotificationService.scheduleNextTopicReminder(current.title);
+    } else {
+      await NotificationService.cancelAllReminders();
+    }
+  };
 
   // Sync data from local storage
   useEffect(() => {
@@ -85,8 +102,24 @@ export default function App() {
       setCompletedTopics(completed);
       setNotes(savedNotes);
       setIsDarkMode(prefs.theme === 'dark');
+      setNotificationsEnabled(prefs.notificationsEnabled);
       setRecentSearches(searches);
       setLoading(false);
+
+      // Perform one-off sync on app load if notifications are enabled
+      if (prefs.notificationsEnabled) {
+        const hasPermission = await NotificationService.requestPermissions();
+        if (hasPermission) {
+          await syncNotificationSchedule(completed, true);
+        } else {
+          // If permission is denied in OS, update local preference to match
+          setNotificationsEnabled(false);
+          await StorageService.savePreferences({
+            theme: prefs.theme,
+            notificationsEnabled: false
+          });
+        }
+      }
     }
     loadStorage();
   }, []);
@@ -101,6 +134,9 @@ export default function App() {
 
     setCompletedTopics(updated);
     await StorageService.saveCompletedTopics(updated);
+    
+    // Reschedule notifications based on the new roadmap state
+    await syncNotificationSchedule(updated, notificationsEnabled);
   };
 
   // Save specific notes edit
@@ -114,7 +150,51 @@ export default function App() {
   const handleToggleTheme = async () => {
     const nextMode = !isDarkMode;
     setIsDarkMode(nextMode);
-    await StorageService.savePreferences({ theme: nextMode ? 'dark' : 'light' });
+    await StorageService.savePreferences({
+      theme: nextMode ? 'dark' : 'light',
+      notificationsEnabled
+    });
+  };
+
+  // Toggle study reminders
+  const handleToggleNotifications = async () => {
+    const nextVal = !notificationsEnabled;
+    if (nextVal) {
+      const hasPermission = await NotificationService.requestPermissions();
+      if (hasPermission) {
+        setNotificationsEnabled(true);
+        await StorageService.savePreferences({
+          theme: isDarkMode ? 'dark' : 'light',
+          notificationsEnabled: true
+        });
+        await syncNotificationSchedule(completedTopics, true);
+        Alert.alert("Study Reminders Enabled", "You will now receive playful notifications to help you stay on track!");
+      } else {
+        Alert.alert(
+          "Permission Denied",
+          "Please enable notifications for CodePath in your device system settings to use study reminders."
+        );
+      }
+    } else {
+      setNotificationsEnabled(false);
+      await StorageService.savePreferences({
+        theme: isDarkMode ? 'dark' : 'light',
+        notificationsEnabled: false
+      });
+      await NotificationService.cancelAllReminders();
+    }
+  };
+
+  // Send an immediate 5-second test notification
+  const handleSendTestNotification = async () => {
+    const current = FLAT_ROADMAP.find(item => !completedTopics.includes(item.id)) || null;
+    const topicTitle = current ? current.title : "HTML Essentials";
+    
+    await NotificationService.sendImmediateTestNotification(topicTitle);
+    Alert.alert(
+      "Test Notification Sent",
+      "A study reminder has been scheduled to fire in 5 seconds. Lock your screen or go to your home screen to see it!"
+    );
   };
 
   // Reset progress and notes
@@ -123,6 +203,7 @@ export default function App() {
     setNotes({});
     setRecentSearches([]);
     await StorageService.resetAll();
+    await NotificationService.cancelAllReminders();
   };
 
   // Add search query
@@ -241,6 +322,9 @@ export default function App() {
             onResetProgress={handleResetProgress}
             notesData={notes}
             completedTopics={completedTopics}
+            notificationsEnabled={notificationsEnabled}
+            onToggleNotifications={handleToggleNotifications}
+            onSendTestNotification={handleSendTestNotification}
           />
         )}
 

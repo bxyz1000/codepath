@@ -10,6 +10,7 @@ import {
   Linking,
   Alert
 } from 'react-native';
+import { CONFIG } from '../config';
 
 export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, onClearSearches }) {
   const [query, setQuery] = useState('');
@@ -28,8 +29,8 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
     onAddSearchQuery(searchQuery.trim());
 
     try {
-      // Direct call to local backend service
-      const response = await fetch('http://localhost:3000/search-transcript', {
+      // Direct call to configured backend service
+      const response = await fetch(`${CONFIG.API_URL}/search-transcript`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
       }
     } catch (err) {
       console.error(err);
-      setError('Could not connect to backend search service. Make sure backend server is running on port 3000.');
+      setError(`Could not connect to backend search service. Make sure your server at ${CONFIG.API_URL} is online.`);
     } finally {
       setLoading(false);
     }

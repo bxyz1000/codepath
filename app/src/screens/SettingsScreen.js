@@ -7,7 +7,10 @@ export default function SettingsScreen({
   onToggleTheme,
   onResetProgress,
   notesData,
-  completedTopics
+  completedTopics,
+  notificationsEnabled,
+  onToggleNotifications,
+  onSendTestNotification
 }) {
   const handleReset = () => {
     Alert.alert(
@@ -49,10 +52,10 @@ export default function SettingsScreen({
         </Text>
       </View>
 
-      {/* Theme Option */}
+      {/* Preferences Option */}
       <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Appearance</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Preferences</Text>
         </View>
 
         <View style={styles.row}>
@@ -69,13 +72,43 @@ export default function SettingsScreen({
             thumbColor={isDarkMode ? '#ffffff' : '#f4f3f4'}
           />
         </View>
+
+        <View style={{ height: 1, backgroundColor: 'rgba(91, 107, 122, 0.1)', marginVertical: 12 }} />
+
+        <View style={styles.row}>
+          <View>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>Study Reminders</Text>
+            <Text style={[styles.rowDesc, { color: theme.textSecondary }]}>
+              Playful alerts prompting your next learning stop.
+            </Text>
+          </View>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={onToggleNotifications}
+            trackColor={{ false: '#767577', true: theme.accent }}
+            thumbColor={notificationsEnabled ? '#ffffff' : '#f4f3f4'}
+          />
+        </View>
       </View>
 
       {/* Local Storage & Actions */}
       <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Local Storage</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>System & Data</Text>
         </View>
+
+        {/* Send Test Notification */}
+        {notificationsEnabled && (
+          <TouchableOpacity style={styles.actionRow} onPress={onSendTestNotification}>
+            <View style={styles.rowText}>
+              <Text style={[styles.rowLabel, { color: theme.text }]}>Send Test Notification</Text>
+              <Text style={[styles.rowDesc, { color: theme.textSecondary }]}>
+                Triggers a playful reminder in 5 seconds to test permissions.
+              </Text>
+            </View>
+            <Text style={[styles.arrow, { color: theme.accent }]}>🚀</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Export Notes */}
         <TouchableOpacity style={styles.actionRow} onPress={handleExport}>

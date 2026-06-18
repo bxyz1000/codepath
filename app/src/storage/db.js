@@ -46,14 +46,15 @@ export const StorageService = {
     }
   },
 
-  // Preferences (e.g. Theme)
+  // Preferences (e.g. Theme, Notifications)
   async getPreferences() {
     try {
       const data = await AsyncStorage.getItem(KEYS.PREFS);
-      return data ? JSON.parse(data) : { theme: 'dark' };
+      const defaults = { theme: 'dark', notificationsEnabled: true };
+      return data ? { ...defaults, ...JSON.parse(data) } : defaults;
     } catch (e) {
       console.error('Error reading preferences', e);
-      return { theme: 'dark' };
+      return { theme: 'dark', notificationsEnabled: true };
     }
   },
 
