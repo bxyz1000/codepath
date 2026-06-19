@@ -1667,7 +1667,7 @@
       urlInput.disabled = true;
       
       try {
-        const response = await fetch('http://localhost:3000/add-video', {
+        const response = await fetch('https://codepath-production-b1f8.up.railway.app/add-video', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1702,7 +1702,7 @@
       if (!confirm('Are you sure you want to remove this course? Your notes and progress for it will be lost.')) return;
       
       try {
-        const response = await fetch(`http://localhost:3000/video/${videoId}`, {
+        const response = await fetch(`https://codepath-production-b1f8.up.railway.app/video/${videoId}`, {
           method: 'DELETE'
         });
         
@@ -1960,7 +1960,7 @@
       resultsArea.innerHTML = '<p style="text-align: center; font-size: 13px; color: var(--text-sec); margin-top: 20px;">Searching transcripts...</p>';
 
       try {
-        const response = await fetch('http://localhost:3000/search-transcript', {
+        const response = await fetch('https://codepath-production-b1f8.up.railway.app/search-transcript', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2210,7 +2210,7 @@
 
       // Fetch custom YouTube courses from backend
       try {
-        const res = await fetch('http://localhost:3000/videos');
+        const res = await fetch('https://codepath-production-b1f8.up.railway.app/videos');
         if (res.ok) {
           const dynamicCourses = await res.json();
           youtubeRoadmaps = dynamicCourses.map(video => ({
@@ -2251,7 +2251,7 @@
 
     async function fetchAiProvider() {
       try {
-        const res = await fetch('http://localhost:3000/settings');
+        const res = await fetch('https://codepath-production-b1f8.up.railway.app/settings');
         if (res.ok) {
           const data = await res.json();
           updateAiProviderUI(data.aiProvider);
@@ -2264,7 +2264,7 @@
     async function setAiProvider(provider) {
       updateAiProviderUI(provider); // optimistic update
       try {
-        const res = await fetch('http://localhost:3000/settings', {
+        const res = await fetch('https://codepath-production-b1f8.up.railway.app/settings', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
