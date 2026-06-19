@@ -1415,6 +1415,23 @@
       padding: 18px 24px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .spine-station-content::before {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: -38px;
+      width: 38px;
+      height: 2px;
+      background-color: var(--border);
+      transition: background-color 0.3s ease;
+      z-index: 1;
+    }
+
+    .spine-station-item.completed .spine-station-content::before {
+      background-color: #e8895a;
     }
 
     .spine-station-item.completed .spine-station-content {
@@ -1571,6 +1588,11 @@
       .spine-station-item:nth-child(even) .spine-station-content {
         order: 3;
       }
+
+      .spine-station-item:nth-child(even) .spine-station-content::before {
+        left: auto;
+        right: -38px;
+      }
     }
   </style>
 </head>
@@ -1580,41 +1602,46 @@
   <div id="onboarding-screen" class="onboarding-container" style="display: none;">
     <div class="onboarding-card">
       <div class="onboarding-logo">C</div>
-      <h1 class="onboarding-title">Welcome to CodePath</h1>
-      <p class="onboarding-subtitle">Let's personalize your custom roadmap tracker and kickstart your learning journey.</p>
+      <h1 class="onboarding-title">CodePath</h1>
       
-      <div class="onboarding-form-group">
-        <label for="onboarding-username" class="onboarding-label">What should we call you?</label>
-        <input type="text" id="onboarding-username" class="onboarding-input" placeholder="Enter your name..." autocomplete="off" oninput="validateOnboardingForm()">
+      <!-- Step 1: Name Input -->
+      <div id="onboarding-step1">
+        <p class="onboarding-subtitle" style="margin-bottom: 24px;">Let's personalize your custom roadmap tracker and kickstart your learning journey.</p>
+        <div class="onboarding-form-group">
+          <label for="onboarding-username" class="onboarding-label">What should we call you?</label>
+          <input type="text" id="onboarding-username" class="onboarding-input" placeholder="Enter your name..." autocomplete="off" oninput="validateOnboardingForm()" onkeydown="if(event.key === 'Enter') goToStep2()">
+        </div>
+        <button id="onboarding-continue-btn" class="onboarding-submit-btn" disabled onclick="goToStep2()">Continue</button>
       </div>
-      
-      <div class="onboarding-form-group">
-        <label class="onboarding-label-tiles">Select your primary goal</label>
-        <div class="onboarding-tiles-grid">
-          <div class="onboarding-tile" onclick="selectTrack('frontend', this)">
-            <span class="onboarding-tile-icon">🗺️</span>
-            <span class="onboarding-tile-title">Learn a Skill</span>
-            <span class="onboarding-tile-desc">track: frontend</span>
-          </div>
-          <div class="onboarding-tile" onclick="selectTrack('projects', this)">
-            <span class="onboarding-tile-icon">🔨</span>
-            <span class="onboarding-tile-title">Build Something</span>
-            <span class="onboarding-tile-desc">track: projects</span>
-          </div>
-          <div class="onboarding-tile" onclick="selectTrack('reading', this)">
-            <span class="onboarding-tile-icon">📖</span>
-            <span class="onboarding-tile-title">Read & Understand</span>
-            <span class="onboarding-tile-desc">track: reading</span>
-          </div>
-          <div class="onboarding-tile" onclick="selectTrack('backend', this)">
-            <span class="onboarding-tile-icon">⚙️</span>
-            <span class="onboarding-tile-title">System Design</span>
-            <span class="onboarding-tile-desc">track: backend</span>
+
+      <!-- Step 2: Goal Tiles -->
+      <div id="onboarding-step2" style="display: none;">
+        <p class="onboarding-subtitle" style="margin-bottom: 24px;">What's your goal?</p>
+        <div class="onboarding-form-group">
+          <div class="onboarding-tiles-grid">
+            <div class="onboarding-tile" onclick="selectAndSubmitTrack('frontend')">
+              <span class="onboarding-tile-icon">🗺️</span>
+              <span class="onboarding-tile-title">Learn a Skill</span>
+              <span class="onboarding-tile-desc">track: frontend</span>
+            </div>
+            <div class="onboarding-tile" onclick="selectAndSubmitTrack('projects')">
+              <span class="onboarding-tile-icon">🔨</span>
+              <span class="onboarding-tile-title">Build Something</span>
+              <span class="onboarding-tile-desc">track: projects</span>
+            </div>
+            <div class="onboarding-tile" onclick="selectAndSubmitTrack('reading')">
+              <span class="onboarding-tile-icon">📖</span>
+              <span class="onboarding-tile-title">Read & Understand</span>
+              <span class="onboarding-tile-desc">track: reading</span>
+            </div>
+            <div class="onboarding-tile" onclick="selectAndSubmitTrack('backend')">
+              <span class="onboarding-tile-icon">⚙️</span>
+              <span class="onboarding-tile-title">System Design</span>
+              <span class="onboarding-tile-desc">track: backend</span>
+            </div>
           </div>
         </div>
       </div>
-      
-      <button id="onboarding-submit" class="onboarding-submit-btn" disabled onclick="submitOnboarding()">Start Learning Journey</button>
     </div>
   </div>
 
@@ -1849,8 +1876,6 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Onboarding script logic
-    let selectedTrack = null;
-
     function checkOnboarding() {
       const cpUser = localStorage.getItem('cp_user');
       const onboardingScreen = document.getElementById('onboarding-screen');
@@ -1858,6 +1883,10 @@
       
       if (!cpUser) {
         onboardingScreen.style.display = 'flex';
+        document.getElementById('onboarding-step1').style.display = 'block';
+        document.getElementById('onboarding-step2').style.display = 'none';
+        document.getElementById('onboarding-username').value = '';
+        document.getElementById('onboarding-continue-btn').setAttribute('disabled', 'true');
         mainAppLayout.style.display = 'none';
       } else {
         onboardingScreen.style.display = 'none';
@@ -1874,22 +1903,41 @@
       }
     }
 
-    function selectTrack(track, element) {
-      selectedTrack = track;
-      const tiles = document.querySelectorAll('.onboarding-tile');
-      tiles.forEach(tile => tile.classList.remove('selected'));
-      element.classList.add('selected');
-      validateOnboardingForm();
-    }
-
     function validateOnboardingForm() {
       const nameVal = document.getElementById('onboarding-username').value.trim();
-      const submitBtn = document.getElementById('onboarding-submit');
-      if (nameVal && selectedTrack) {
-        submitBtn.removeAttribute('disabled');
+      const continueBtn = document.getElementById('onboarding-continue-btn');
+      if (nameVal) {
+        continueBtn.removeAttribute('disabled');
       } else {
-        submitBtn.setAttribute('disabled', 'true');
+        continueBtn.setAttribute('disabled', 'true');
       }
+    }
+
+    function goToStep2() {
+      const nameVal = document.getElementById('onboarding-username').value.trim();
+      if (!nameVal) return;
+      document.getElementById('onboarding-step1').style.display = 'none';
+      document.getElementById('onboarding-step2').style.display = 'block';
+    }
+
+    async function selectAndSubmitTrack(track) {
+      const nameVal = document.getElementById('onboarding-username').value.trim();
+      if (!nameVal) return;
+      
+      const cpUser = {
+        username: nameVal,
+        track: track
+      };
+      localStorage.setItem('cp_user', JSON.stringify(cpUser));
+      localStorage.setItem('cp_username', nameVal);
+      
+      // Hide onboarding and show app layout
+      document.getElementById('onboarding-screen').style.display = 'none';
+      document.getElementById('main-app-layout').style.display = 'grid';
+      
+      // Load app data
+      await initializeAppSession();
+      initData();
     }
 
     async function initializeAppSession() {
@@ -1941,14 +1989,28 @@
         localStorage.setItem('cp_progress', JSON.stringify(fetchedProgress));
         dbUserProgress = fetchedProgress;
 
-        // Sync general completed topics list for app compatibility
+        // Sync general completed topics list and subtopic checks for app compatibility
         let localCompleted = [];
+        let checkedSubtopics = {};
         dbUserProgress.forEach(p => {
           if (p.completed) {
             localCompleted.push(p.topic_id);
           }
+          if (p.notes) {
+            try {
+              const subtopicIds = JSON.parse(p.notes);
+              if (Array.isArray(subtopicIds)) {
+                subtopicIds.forEach(id => {
+                  checkedSubtopics[id] = true;
+                });
+              }
+            } catch (e) {
+              console.warn('Failed to parse subtopics from user_progress notes in initializeAppSession:', p.notes);
+            }
+          }
         });
         localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
+        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
 
       } catch (err) {
         console.error('Error fetching Supabase app session data on load:', err);
@@ -1958,31 +2020,31 @@
         dbUserProgress = JSON.parse(localStorage.getItem('cp_progress')) || [];
         
         let localCompleted = [];
+        let checkedSubtopics = {};
         dbUserProgress.forEach(p => {
           if (p.completed) {
             localCompleted.push(p.topic_id);
           }
+          if (p.notes) {
+            try {
+              const subtopicIds = JSON.parse(p.notes);
+              if (Array.isArray(subtopicIds)) {
+                subtopicIds.forEach(id => {
+                  checkedSubtopics[id] = true;
+                });
+              }
+            } catch (e) {
+              console.warn('Failed to parse subtopics fallback in initializeAppSession:', p.notes);
+            }
+          }
         });
         localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
+        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
       }
 
       // 5. Calculate completion % from progress and update the UI
       // 6. Show "Current Stop" as the first incomplete topic
       updateDashboardState();
-    }
-
-    function submitOnboarding() {
-      const nameVal = document.getElementById('onboarding-username').value.trim();
-      if (!nameVal || !selectedTrack) return;
-      
-      const cpUser = {
-        username: nameVal,
-        track: selectedTrack
-      };
-      localStorage.setItem('cp_user', JSON.stringify(cpUser));
-      localStorage.setItem('cp_username', nameVal);
-      
-      initializeAppSession();
     }
 
     // Variables for holding data
@@ -2249,14 +2311,28 @@
         if (progErr) throw progErr;
         dbUserProgress = progress || [];
 
-        // Seed the completed status into completedTopics local storage list for compatibility
+        // Seed the completed status and subtopic checks into local storage for compatibility
         let localCompleted = [];
+        let checkedSubtopics = {};
         dbUserProgress.forEach(p => {
           if (p.completed) {
             localCompleted.push(p.topic_id);
           }
+          if (p.notes) {
+            try {
+              const subtopicIds = JSON.parse(p.notes);
+              if (Array.isArray(subtopicIds)) {
+                subtopicIds.forEach(id => {
+                  checkedSubtopics[id] = true;
+                });
+              }
+            } catch (e) {
+              console.warn('Failed to parse subtopics from user_progress notes in loadRoadmapData:', p.notes);
+            }
+          }
         });
         localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
+        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
 
       } catch (err) {
         console.error('Error fetching Supabase roadmap data:', err);
@@ -2332,13 +2408,13 @@
         stationsHtml += `
           <div class="spine-station-item ${isTopicDone ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}" id="station-${topic.id}" data-topic-id="${topic.id}">
             <div class="spine-station-node-container">
-              <div class="spine-station-node" onclick="toggleStation('${topic.id}')">
+              <div class="spine-station-node" onclick="toggleStation('${topic.id}', event)">
                 <div class="spine-station-node-inner"></div>
               </div>
             </div>
             
-            <div class="spine-station-content">
-              <div class="spine-station-header" onclick="toggleStation('${topic.id}')">
+            <div class="spine-station-content" onclick="toggleStation('${topic.id}', event)">
+              <div class="spine-station-header">
                 <h3 class="spine-station-title">${topic.title}</h3>
                 <span class="spine-station-progress-text" id="prog-txt-${topic.id}">
                   ${checkedCount}/${subtopicsArray.length} Completed
@@ -2368,7 +2444,10 @@
     }
 
     // Toggle Station Expand/Collapse
-    window.toggleStation = function(topicId) {
+    window.toggleStation = function(topicId, event) {
+      if (event && event.target.closest('.spine-station-subtopics')) {
+        return;
+      }
       const stationEl = document.getElementById(`station-${topicId}`);
       if (!stationEl) return;
 
@@ -2426,36 +2505,31 @@
       const cpUser = JSON.parse(localStorage.getItem('cp_user')) || { username: 'Bhavik' };
       const username = cpUser.username;
 
+      // Compute array of checked subtopic IDs for this topic
+      const checkedIdsForTopic = subtopicsArray
+        .filter(sub => checkedSubtopics[sub.id])
+        .map(sub => sub.id);
+      
+      const notesJson = JSON.stringify(checkedIdsForTopic);
+
       if (isTopicCompleted) {
         stationEl.classList.add('completed');
-        
-        // Save progress to Supabase
-        try {
-          await supabaseClient
-            .from('user_progress')
-            .upsert({
-              username: username,
-              topic_id: topicId,
-              completed: true
-            }, { onConflict: 'username,topic_id' });
-        } catch (err) {
-          console.error('Error saving progress to Supabase:', err);
-        }
       } else {
         stationEl.classList.remove('completed');
-        
-        // Save progress to Supabase
-        try {
-          await supabaseClient
-            .from('user_progress')
-            .upsert({
-              username: username,
-              topic_id: topicId,
-              completed: false
-            }, { onConflict: 'username,topic_id' });
-        } catch (err) {
-          console.error('Error saving progress to Supabase:', err);
-        }
+      }
+
+      // Save progress to Supabase
+      try {
+        await supabaseClient
+          .from('user_progress')
+          .upsert({
+            username: username,
+            topic_id: topicId,
+            completed: isTopicCompleted,
+            notes: notesJson
+          }, { onConflict: 'username,topic_id' });
+      } catch (err) {
+        console.error('Error saving progress to Supabase:', err);
       }
 
       // Update local storage 'codepath_completed' list for general app compatibility
