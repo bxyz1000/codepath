@@ -117,7 +117,7 @@ async function fetchVideoDetails(videoId) {
  */
 async function fetchTranscript(videoId) {
   try {
-    const segments = await YoutubeTranscript.fetchTranscript(videoId);
+    const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang: 'en' });
     // Normalize format to include seconds and clean text
     return segments.map(s => ({
       text: s.text.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/\n/g, ' '),

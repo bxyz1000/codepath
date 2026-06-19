@@ -8,14 +8,12 @@ export default function DashboardScreen({
   nextTopic,
   recentNotes,
   theme,
-  onNavigate
+  onNavigate,
+  streak
 }) {
   const totalItems = roadmapData.reduce((acc, cat) => acc + cat.items.length, 0);
   const completedCount = completedTopics.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
-
-  // Mock stats
-  const streak = completedCount > 0 ? 5 : 0;
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -59,8 +57,8 @@ export default function DashboardScreen({
       ) : (
         <View style={[styles.currentCard, { backgroundColor: theme.card, borderColor: theme.success }]}>
           <Text style={[styles.sectionSubtitle, { color: theme.success }]}>JOURNEY COMPLETE</Text>
-          <Text style={[styles.currentTopicTitle, { color: theme.text }]}>Congratulations! 🎉</Text>
-          <Text style={[styles.currentTopicCat, { color: theme.textSecondary }]}>You've mastered all learning roadmap topics.</Text>
+          <Text style={[styles.currentTopicTitle, { color: theme.text }]}>🎉 Track Complete!</Text>
+          <Text style={[styles.currentTopicCat, { color: theme.textSecondary }]}>Pick a new track to keep growing.</Text>
           
           <TouchableOpacity
             style={[styles.continueBtn, { backgroundColor: theme.success }]}

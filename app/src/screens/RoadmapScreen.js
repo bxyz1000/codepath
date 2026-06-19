@@ -5,10 +5,13 @@ import TimelinePath from '../components/TimelinePath';
 export default function RoadmapScreen({
   roadmapData,
   completedTopics,
+  completedSubtopics,
   currentTopic,
   theme,
   onToggleComplete,
-  onEditNotes
+  onToggleSubtopicComplete,
+  onEditNotes,
+  onSaveYoutubeResource
 }) {
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -22,10 +25,13 @@ export default function RoadmapScreen({
       <TimelinePath
         roadmapData={roadmapData}
         completedTopics={completedTopics}
+        completedSubtopics={completedSubtopics}
         currentTopic={currentTopic}
         theme={theme}
         onToggleComplete={onToggleComplete}
+        onToggleSubtopicComplete={onToggleSubtopicComplete}
         onEditNotes={onEditNotes}
+        onSaveYoutubeResource={onSaveYoutubeResource}
       />
     </ScrollView>
   );

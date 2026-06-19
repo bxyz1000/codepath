@@ -1110,542 +1110,143 @@
       border-color: var(--accent);
     }
 
-    /* Onboarding Screen Styles */
-    .onboarding-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background-color: #16191c;
-      color: #f7f3ec;
-      padding: 40px 20px;
-      z-index: 99999;
+    /* Onboarding Fullscreen Overlay */
+    .onboarding-overlay {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-    }
-
-    .onboarding-card {
-      background-color: rgba(34, 38, 42, 0.65);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(232, 137, 90, 0.25);
-      border-radius: 24px;
-      width: 100%;
-      max-width: 580px;
-      padding: 40px 32px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(232, 137, 90, 0.15);
-      text-align: center;
-      animation: fadeInOnboarding 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes fadeInOnboarding {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .onboarding-logo {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, #e8895a, #f7b05b);
-      border-radius: 12px;
+      right: 0;
+      bottom: 0;
+      background: rgba(13, 15, 17, 0.96);
+      backdrop-filter: blur(12px);
+      z-index: 9999;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-weight: 850;
-      font-size: 26px;
-      margin: 0 auto 20px auto;
-      box-shadow: 0 8px 20px rgba(232, 137, 90, 0.35);
+      padding: 20px;
+    }
+    [data-theme="light"] .onboarding-overlay {
+      background: rgba(248, 246, 240, 0.96);
+    }
+
+    .onboarding-card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      animation: scaleUp 0.3s ease-out;
     }
 
     .onboarding-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 800;
-      margin-bottom: 12px;
-      color: #f7f3ec;
-      letter-spacing: -0.5px;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--text);
     }
 
     .onboarding-subtitle {
-      font-size: 15px;
-      color: #8a9ba8;
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
-
-    .onboarding-form-group {
+      font-size: 14px;
+      color: var(--text-sec);
+      text-align: center;
       margin-bottom: 24px;
-      text-align: left;
     }
 
-    .onboarding-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #e8895a;
-      margin-bottom: 8px;
-    }
-
-    .onboarding-input {
-      width: 100%;
-      background-color: #1c2024;
-      border: 1px solid #2e353c;
-      border-radius: 12px;
-      padding: 14px 18px;
-      color: #f7f3ec;
-      font-size: 15px;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .onboarding-input:focus {
-      border-color: #e8895a;
-      box-shadow: 0 0 0 3px rgba(232, 137, 90, 0.2);
-      background-color: #22272c;
-    }
-
-    .onboarding-label-tiles {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #e8895a;
-      margin-bottom: 12px;
-      text-align: left;
-    }
-
-    .onboarding-tiles-grid {
+    .onboarding-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
-      margin-bottom: 28px;
+      margin-top: 24px;
     }
 
-    .onboarding-tile {
-      background-color: #1c2024;
-      border: 1px solid #2e353c;
+    .goal-tile {
+      background-color: rgba(var(--card-rgb), 0.5);
+      border: 2px solid var(--border);
       border-radius: 16px;
-      padding: 20px 16px;
+      padding: 20px;
+      text-align: center;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 8px;
     }
 
-    .onboarding-tile:hover {
-      transform: translateY(-3px);
-      border-color: rgba(232, 137, 90, 0.5);
-      background-color: #22272c;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    .goal-tile:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px var(--glow);
+      background-color: rgba(var(--accent-rgb), 0.03);
     }
 
-    .onboarding-tile.selected {
-      border-color: #e8895a;
-      background-color: rgba(232, 137, 90, 0.1);
-      box-shadow: 0 0 20px rgba(232, 137, 90, 0.2);
+    .goal-icon {
+      font-size: 32px;
+      margin-bottom: 4px;
     }
 
-    .onboarding-tile-icon {
-      font-size: 28px;
-    }
-
-    .onboarding-tile-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #f7f3ec;
-    }
-
-    .onboarding-tile-desc {
-      font-size: 11px;
-      color: #8a9ba8;
-      text-align: center;
-    }
-
-    .onboarding-submit-btn {
-      width: 100%;
-      background-color: #e8895a;
-      color: #16191c;
-      font-weight: 800;
-      border: none;
-      border-radius: 12px;
-      padding: 16px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(232, 137, 90, 0.3);
-    }
-
-    .onboarding-submit-btn:hover {
-      background-color: #f7a075;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(232, 137, 90, 0.4);
-    }
-
-    .onboarding-submit-btn:active {
-      transform: translateY(0);
-    }
-
-    .onboarding-submit-btn:disabled {
-      background-color: #2b3036;
-      color: #5b6b7a;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    @media (max-width: 480px) {
-      .onboarding-tiles-grid {
-        grid-template-columns: 1fr;
-      }
-      .onboarding-card {
-        padding: 30px 20px;
-      }
-    }
-
-    /* Spine Timeline Styles */
-    .spine-timeline-container {
-      position: relative;
-      max-width: 800px;
-      margin: 20px auto 40px auto;
-      padding: 20px 0;
-      min-height: 200px;
-    }
-
-    .spine-line {
-      position: absolute;
-      left: 28px;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background-color: var(--border);
-      border-radius: 2px;
-      z-index: 1;
-    }
-
-    .spine-line-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 0px;
-      background-color: #e8895a;
-      box-shadow: 0 0 10px rgba(232, 137, 90, 0.6);
-      transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 2px;
-    }
-
-    .spine-stations-list {
-      display: flex;
-      flex-direction: column;
-      gap: 36px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .spine-station-item {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      transition: all 0.3s ease;
-    }
-
-    .spine-station-node-container {
-      width: 60px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-shrink: 0;
-      margin-top: 14px;
-    }
-
-    .spine-station-node {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background-color: var(--bg);
-      border: 4px solid var(--border);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 0 4px var(--bg);
-    }
-
-    .spine-station-node:hover {
-      border-color: #e8895a;
-      transform: scale(1.2);
-      box-shadow: 0 0 12px rgba(232, 137, 90, 0.4), 0 0 0 4px var(--bg);
-    }
-
-    .spine-station-item.completed .spine-station-node {
-      border-color: #e8895a;
-      background-color: #e8895a;
-      box-shadow: 0 0 15px rgba(232, 137, 90, 0.5), 0 0 0 4px var(--bg);
-    }
-
-    .spine-station-node-inner {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: transparent;
-      transition: all 0.3s ease;
-    }
-
-    .spine-station-item.completed .spine-station-node-inner {
-      background-color: var(--bg);
-    }
-
-    .spine-station-content {
-      flex: 1;
-      background-color: rgba(var(--card-rgb), 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-
-    .spine-station-content::before {
-      content: '';
-      position: absolute;
-      top: 25px;
-      left: -38px;
-      width: 38px;
-      height: 2px;
-      background-color: var(--border);
-      transition: background-color 0.3s ease;
-      z-index: 1;
-    }
-
-    .spine-station-item.completed .spine-station-content::before {
-      background-color: #e8895a;
-    }
-
-    .spine-station-item.completed .spine-station-content {
-      border-color: rgba(232, 137, 90, 0.3);
-      box-shadow: 0 4px 20px rgba(232, 137, 90, 0.05);
-    }
-
-    .spine-station-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .spine-station-title {
+    .goal-title-text {
       font-family: 'Outfit', sans-serif;
-      font-size: 17px;
       font-weight: 700;
+      font-size: 15px;
       color: var(--text);
-      transition: color 0.2s;
     }
 
-    .spine-station-header:hover .spine-station-title {
-      color: #e8895a;
-    }
-
-    .spine-station-progress-text {
+    .goal-desc {
       font-size: 11px;
-      font-weight: 700;
       color: var(--text-sec);
-      background-color: var(--bg);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 20px;
-      transition: all 0.3s;
-      white-space: nowrap;
-    }
-
-    .spine-station-item.completed .spine-station-progress-text {
-      color: #e8895a;
-      border-color: rgba(232, 137, 90, 0.4);
-      background-color: rgba(232, 137, 90, 0.08);
-    }
-
-    .spine-station-subtopics {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .spine-station-item.expanded .spine-station-subtopics {
-      max-height: 800px;
-      margin-top: 16px;
-      border-top: 1px dashed var(--border);
-      padding-top: 16px;
-      opacity: 1;
-    }
-
-    .subtopic-checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      color: var(--text-sec);
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.2s;
-    }
-
-    .subtopic-checkbox-label:hover {
-      color: var(--text);
-    }
-
-    .subtopic-checkbox-label input[type="checkbox"] {
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--text-sec);
-      border-radius: 5px;
-      outline: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-
-    .subtopic-checkbox-label input[type="checkbox"]:checked {
-      background-color: #e8895a;
-      border-color: #e8895a;
-    }
-
-    .subtopic-checkbox-label input[type="checkbox"]::before {
-      content: '✓';
-      font-size: 10px;
-      font-weight: 900;
-      color: transparent;
-      transition: color 0.1s;
-    }
-
-    .subtopic-checkbox-label input[type="checkbox"]:checked::before {
-      color: var(--bg);
-    }
-
-    .subtopic-checkbox-label input[type="checkbox"]:checked + span {
-      color: var(--text);
-      text-decoration: line-through;
-      opacity: 0.65;
-    }
-
-    @media (min-width: 768px) {
-      .spine-line {
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      .spine-station-item {
-        flex-direction: row;
-      }
-
-      .spine-station-item:nth-child(even) {
-        flex-direction: row-reverse;
-      }
-
-      .spine-station-item:nth-child(even) .spine-station-content {
-        text-align: right;
-      }
-
-      .spine-station-item:nth-child(even) .spine-station-header {
-        flex-direction: row-reverse;
-      }
-
-      .spine-station-item:nth-child(even) .subtopic-checkbox-label {
-        flex-direction: row-reverse;
-        text-align: right;
-      }
-
-      .spine-station-node-container {
-        order: 2;
-        margin-top: 14px;
-      }
-
-      .spine-station-content {
-        order: 1;
-        width: calc(50% - 50px);
-        flex: none;
-      }
-
-      .spine-station-item:nth-child(even) .spine-station-content {
-        order: 3;
-      }
-
-      .spine-station-item:nth-child(even) .spine-station-content::before {
-        left: auto;
-        right: -38px;
-      }
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <!-- Onboarding Screen Overlay -->
-  <div id="onboarding-screen" class="onboarding-container" style="display: none;">
+  <!-- Fullscreen Onboarding Overlay -->
+  <div id="onboarding-overlay" class="onboarding-overlay" style="display: none;">
     <div class="onboarding-card">
-      <div class="onboarding-logo">C</div>
-      <h1 class="onboarding-title">CodePath</h1>
-      
-      <!-- Step 1: Name Input -->
-      <div id="onboarding-step1">
-        <p class="onboarding-subtitle" style="margin-bottom: 24px;">Let's personalize your custom roadmap tracker and kickstart your learning journey.</p>
-        <div class="onboarding-form-group">
-          <label for="onboarding-username" class="onboarding-label">What should we call you?</label>
-          <input type="text" id="onboarding-username" class="onboarding-input" placeholder="Enter your name..." autocomplete="off" oninput="validateOnboardingForm()" onkeydown="if(event.key === 'Enter') goToStep2()">
-        </div>
-        <button id="onboarding-continue-btn" class="onboarding-submit-btn" disabled onclick="goToStep2()">Continue</button>
+      <div class="onboarding-step" id="onboarding-step-1">
+        <h2 class="onboarding-title">Welcome to CodePath</h2>
+        <p class="onboarding-subtitle">Let's personalize your custom roadmap tracker.</p>
+        <input type="text" id="onboarding-username-input" class="search-input" placeholder="Enter your name..." style="margin-top: 20px; width: 100%;">
+        <button class="btn" id="onboarding-continue-btn" style="margin-top: 20px;">Continue</button>
       </div>
-
-      <!-- Step 2: Goal Tiles -->
-      <div id="onboarding-step2" style="display: none;">
-        <p class="onboarding-subtitle" style="margin-bottom: 24px;">What's your goal?</p>
-        <div class="onboarding-form-group">
-          <div class="onboarding-tiles-grid">
-            <div class="onboarding-tile" onclick="selectAndSubmitTrack('frontend')">
-              <span class="onboarding-tile-icon">🗺️</span>
-              <span class="onboarding-tile-title">Learn a Skill</span>
-              <span class="onboarding-tile-desc">track: frontend</span>
-            </div>
-            <div class="onboarding-tile" onclick="selectAndSubmitTrack('projects')">
-              <span class="onboarding-tile-icon">🔨</span>
-              <span class="onboarding-tile-title">Build Something</span>
-              <span class="onboarding-tile-desc">track: projects</span>
-            </div>
-            <div class="onboarding-tile" onclick="selectAndSubmitTrack('reading')">
-              <span class="onboarding-tile-icon">📖</span>
-              <span class="onboarding-tile-title">Read & Understand</span>
-              <span class="onboarding-tile-desc">track: reading</span>
-            </div>
-            <div class="onboarding-tile" onclick="selectAndSubmitTrack('backend')">
-              <span class="onboarding-tile-icon">⚙️</span>
-              <span class="onboarding-tile-title">System Design</span>
-              <span class="onboarding-tile-desc">track: backend</span>
-            </div>
+      <div class="onboarding-step" id="onboarding-step-2" style="display: none;">
+        <h2 class="onboarding-title">Choose Your Goal</h2>
+        <p class="onboarding-subtitle">Select a path to focus your learning journey.</p>
+        <div class="onboarding-grid">
+          <div class="goal-tile" data-track="frontend">
+            <div class="goal-icon">🗺️</div>
+            <div class="goal-title-text">Learn a Skill</div>
+            <div class="goal-desc">Frontend</div>
+          </div>
+          <div class="goal-tile" data-track="projects">
+            <div class="goal-icon">🔨</div>
+            <div class="goal-title-text">Build Something</div>
+            <div class="goal-desc">Projects</div>
+          </div>
+          <div class="goal-tile" data-track="reading">
+            <div class="goal-icon">📖</div>
+            <div class="goal-title-text">Read & Understand</div>
+            <div class="goal-desc">Reading</div>
+          </div>
+          <div class="goal-tile" data-track="backend">
+            <div class="goal-icon">⚙️</div>
+            <div class="goal-title-text">System Design</div>
+            <div class="goal-desc">Backend</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="app-layout" id="main-app-layout">
+  <div class="app-layout">
     <!-- Sidebar (Desktop only) -->
     <aside class="sidebar">
       <div class="sidebar-brand">
@@ -1875,178 +1476,6 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4dHN1YWdjdXlqc3B5aHloeGR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NDc4NDUsImV4cCI6MjA5NzQyMzg0NX0.6zGWM782kE2HezROUA646wc9AGxVg0VyumvdnbvtYDM';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Onboarding script logic
-    function checkOnboarding() {
-      const cpUser = localStorage.getItem('cp_user');
-      const onboardingScreen = document.getElementById('onboarding-screen');
-      const mainAppLayout = document.getElementById('main-app-layout');
-      
-      if (!cpUser) {
-        onboardingScreen.style.display = 'flex';
-        document.getElementById('onboarding-step1').style.display = 'block';
-        document.getElementById('onboarding-step2').style.display = 'none';
-        document.getElementById('onboarding-username').value = '';
-        document.getElementById('onboarding-continue-btn').setAttribute('disabled', 'true');
-        mainAppLayout.style.display = 'none';
-      } else {
-        onboardingScreen.style.display = 'none';
-        mainAppLayout.style.display = 'grid';
-        try {
-          const userObj = JSON.parse(cpUser);
-          const welcomeName = document.getElementById('welcome-username');
-          if (welcomeName) {
-            welcomeName.innerText = userObj.username;
-          }
-        } catch (e) {
-          console.error('Error parsing cp_user in checkOnboarding', e);
-        }
-      }
-    }
-
-    function validateOnboardingForm() {
-      const nameVal = document.getElementById('onboarding-username').value.trim();
-      const continueBtn = document.getElementById('onboarding-continue-btn');
-      if (nameVal) {
-        continueBtn.removeAttribute('disabled');
-      } else {
-        continueBtn.setAttribute('disabled', 'true');
-      }
-    }
-
-    function goToStep2() {
-      const nameVal = document.getElementById('onboarding-username').value.trim();
-      if (!nameVal) return;
-      document.getElementById('onboarding-step1').style.display = 'none';
-      document.getElementById('onboarding-step2').style.display = 'block';
-    }
-
-    async function selectAndSubmitTrack(track) {
-      const nameVal = document.getElementById('onboarding-username').value.trim();
-      if (!nameVal) return;
-      
-      const cpUser = {
-        username: nameVal,
-        track: track
-      };
-      localStorage.setItem('cp_user', JSON.stringify(cpUser));
-      localStorage.setItem('cp_username', nameVal);
-      
-      // Hide onboarding and show app layout
-      document.getElementById('onboarding-screen').style.display = 'none';
-      document.getElementById('main-app-layout').style.display = 'grid';
-      
-      // Load app data
-      await initializeAppSession();
-      initData();
-    }
-
-    async function initializeAppSession() {
-      // 1. Check localStorage for cp_user — if missing show onboarding
-      const cpUserStr = localStorage.getItem('cp_user');
-      if (!cpUserStr) {
-        checkOnboarding();
-        return;
-      }
-      
-      // If exists, show main app
-      checkOnboarding();
-
-      const cpUser = JSON.parse(cpUserStr);
-      const userTrack = cpUser.track;
-      const username = cpUser.username;
-
-      // 4. Show their name in the dashboard welcome message
-      const welcomeName = document.getElementById('welcome-username');
-      if (welcomeName) {
-        welcomeName.innerText = username;
-      }
-
-      try {
-        // 2. Fetch their topics from Supabase
-        const { data: topics, error: topicsErr } = await supabaseClient
-          .from('topics')
-          .select('*')
-          .eq('track_id', userTrack)
-          .order('order_index', { ascending: true });
-
-        if (topicsErr) throw topicsErr;
-        const fetchedTopics = topics || [];
-        
-        // Cache in localStorage as cp_topics
-        localStorage.setItem('cp_topics', JSON.stringify(fetchedTopics));
-        dbTopics = fetchedTopics;
-
-        // 3. Fetch their progress from Supabase user_progress
-        const { data: progress, error: progErr } = await supabaseClient
-          .from('user_progress')
-          .select('*')
-          .eq('username', username);
-
-        if (progErr) throw progErr;
-        const fetchedProgress = progress || [];
-        
-        // Cache as cp_progress
-        localStorage.setItem('cp_progress', JSON.stringify(fetchedProgress));
-        dbUserProgress = fetchedProgress;
-
-        // Sync general completed topics list and subtopic checks for app compatibility
-        let localCompleted = [];
-        let checkedSubtopics = {};
-        dbUserProgress.forEach(p => {
-          if (p.completed) {
-            localCompleted.push(p.topic_id);
-          }
-          if (p.notes) {
-            try {
-              const subtopicIds = JSON.parse(p.notes);
-              if (Array.isArray(subtopicIds)) {
-                subtopicIds.forEach(id => {
-                  checkedSubtopics[id] = true;
-                });
-              }
-            } catch (e) {
-              console.warn('Failed to parse subtopics from user_progress notes in initializeAppSession:', p.notes);
-            }
-          }
-        });
-        localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
-        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
-
-      } catch (err) {
-        console.error('Error fetching Supabase app session data on load:', err);
-        
-        // Fallbacks from localStorage cache if network is down
-        dbTopics = JSON.parse(localStorage.getItem('cp_topics')) || [];
-        dbUserProgress = JSON.parse(localStorage.getItem('cp_progress')) || [];
-        
-        let localCompleted = [];
-        let checkedSubtopics = {};
-        dbUserProgress.forEach(p => {
-          if (p.completed) {
-            localCompleted.push(p.topic_id);
-          }
-          if (p.notes) {
-            try {
-              const subtopicIds = JSON.parse(p.notes);
-              if (Array.isArray(subtopicIds)) {
-                subtopicIds.forEach(id => {
-                  checkedSubtopics[id] = true;
-                });
-              }
-            } catch (e) {
-              console.warn('Failed to parse subtopics fallback in initializeAppSession:', p.notes);
-            }
-          }
-        });
-        localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
-        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
-      }
-
-      // 5. Calculate completion % from progress and update the UI
-      // 6. Show "Current Stop" as the first incomplete topic
-      updateDashboardState();
-    }
-
     // Variables for holding data
     let dynamicCourses = [];
     let ROADMAP_DATA = [];
@@ -2092,8 +1521,6 @@
       
       if (tab === 'dashboard') {
         updateDashboardState();
-      } else if (tab === 'roadmap') {
-        renderRoadmap();
       }
     }
 
@@ -2104,6 +1531,10 @@
         completedTopics = completedTopics.filter(id => id !== itemId);
       } else {
         completedTopics.push(itemId);
+        // Save today's date when any topic/milestone is marked complete
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        localStorage.setItem('cp_last_active', todayStr);
       }
       localStorage.setItem('codepath_completed', JSON.stringify(completedTopics));
       renderRoadmap();
@@ -2112,17 +1543,13 @@
 
     // Update Dashboard numbers and cards dynamically
     function updateDashboardState() {
-      // Use dbTopics if populated, fallback to FLAT_ITEMS
-      const total = dbTopics.length > 0 ? dbTopics.length : FLAT_ITEMS.length;
-      const completedList = JSON.parse(localStorage.getItem('codepath_completed')) || [];
-      const done = dbTopics.length > 0
-        ? dbTopics.filter(t => completedList.includes(t.id)).length
-        : completedTopics.filter(id => FLAT_ITEMS.some(item => item.id === id)).length;
-        
+      const total = FLAT_ITEMS.length;
+      const done = completedTopics.filter(id => FLAT_ITEMS.some(item => item.id === id)).length;
       const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
       
       const progStr = `${percentage}%`;
-      const streakStr = done > 0 ? `${done + 2} Days` : '0 Days';
+      const savedStreak = localStorage.getItem('cp_streak') || '0';
+      const streakStr = `${savedStreak} Days`;
       
       const dp1 = document.getElementById('dashboard-progress');
       const dp2 = document.getElementById('sidebar-progress');
@@ -2135,33 +1562,26 @@
       if (ds2) ds2.innerText = streakStr;
 
       // Find current stop: first item not completed
-      const currentItem = dbTopics.length > 0
-        ? dbTopics.find(t => !completedList.includes(t.id))
-        : FLAT_ITEMS.find(item => !completedTopics.includes(item.id));
-        
+      const currentItem = FLAT_ITEMS.find(item => !completedTopics.includes(item.id));
       const continueBtn = document.getElementById('dashboard-continue-btn');
       
       if (currentItem) {
+        // Update dashboard stop card
         const dt1 = document.getElementById('dashboard-current-title');
         const dm1 = document.getElementById('dashboard-current-module');
         if (dt1) dt1.innerText = currentItem.title;
-        if (dm1) dm1.innerText = dbTopics.length > 0 ? 'Roadmap Milestones' : currentItem.categoryTitle;
+        if (dm1) dm1.innerText = currentItem.categoryTitle;
         if (continueBtn) continueBtn.style.display = 'block';
         
+        // Update sidebar stop card
         const sct1 = document.getElementById('sidebar-current-title');
         const scm1 = document.getElementById('sidebar-current-module');
         if (sct1) sct1.innerText = currentItem.title;
-        if (scm1) scm1.innerText = dbTopics.length > 0 ? 'Roadmap Milestones' : currentItem.categoryTitle;
+        if (scm1) scm1.innerText = currentItem.categoryTitle;
         
         // Find next item
-        const currentIndex = dbTopics.length > 0
-          ? dbTopics.findIndex(t => t.id === currentItem.id)
-          : FLAT_ITEMS.findIndex(item => item.id === currentItem.id);
-          
-        const nextItem = dbTopics.length > 0
-          ? dbTopics[currentIndex + 1]
-          : FLAT_ITEMS[currentIndex + 1];
-          
+        const currentIndex = FLAT_ITEMS.findIndex(item => item.id === currentItem.id);
+        const nextItem = FLAT_ITEMS[currentIndex + 1];
         const nextCard = document.getElementById('dashboard-next-card');
         const nextTitle = document.getElementById('dashboard-next-title');
         
@@ -2281,321 +1701,121 @@
     }
 
     // Render roadmap timeline items
-    // Supabase Roadmap state
-    let dbTopics = [];
-    let dbUserProgress = [];
-    let expandedStations = {};
-
-    async function loadRoadmapData() {
-      const cpUser = JSON.parse(localStorage.getItem('cp_user')) || { username: 'Bhavik', track: 'frontend' };
-      const userTrack = cpUser.track;
-      const username = cpUser.username;
-
-      try {
-        // Fetch topics from Supabase
-        const { data: topics, error: topicsErr } = await supabaseClient
-          .from('topics')
-          .select('*')
-          .eq('track_id', userTrack)
-          .order('order_index', { ascending: true });
-
-        if (topicsErr) throw topicsErr;
-        dbTopics = topics || [];
-
-        // Fetch user progress from Supabase
-        const { data: progress, error: progErr } = await supabaseClient
-          .from('user_progress')
-          .select('*')
-          .eq('username', username);
-
-        if (progErr) throw progErr;
-        dbUserProgress = progress || [];
-
-        // Seed the completed status and subtopic checks into local storage for compatibility
-        let localCompleted = [];
-        let checkedSubtopics = {};
-        dbUserProgress.forEach(p => {
-          if (p.completed) {
-            localCompleted.push(p.topic_id);
-          }
-          if (p.notes) {
-            try {
-              const subtopicIds = JSON.parse(p.notes);
-              if (Array.isArray(subtopicIds)) {
-                subtopicIds.forEach(id => {
-                  checkedSubtopics[id] = true;
-                });
-              }
-            } catch (e) {
-              console.warn('Failed to parse subtopics from user_progress notes in loadRoadmapData:', p.notes);
-            }
-          }
-        });
-        localStorage.setItem('codepath_completed', JSON.stringify(localCompleted));
-        localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
-
-      } catch (err) {
-        console.error('Error fetching Supabase roadmap data:', err);
-      }
-    }
-
-    // Render roadmap timeline items
-    async function renderRoadmap() {
+    function renderRoadmap() {
       const container = document.getElementById('screen-roadmap');
       if (!container) return;
+      container.innerHTML = '';
 
-      container.innerHTML = `
-        <style>
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        </style>
-        <div style="text-align: center; margin-top: 60px; padding: 40px;">
-          <div style="border: 4px solid var(--border); border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px auto;"></div>
-          <p style="font-size: 14px; color: var(--text-sec); font-weight: 600;">Loading custom roadmap from Supabase...</p>
-        </div>
-      `;
-
-      await loadRoadmapData();
-
-      if (dbTopics.length === 0) {
+      if (ROADMAP_DATA.length === 0) {
         container.innerHTML = `
           <div style="text-align: center; margin-top: 40px; padding: 40px; background-color: var(--card); border: 1px solid var(--border); border-radius: 16px;">
-            <p style="font-size: 16px; color: var(--text-sec); font-weight: 600;">No Topics Found in Supabase</p>
-            <p style="font-size: 13px; color: var(--text-sec); margin-top: 8px;">Please run backend/seed.js to populate topics for this track!</p>
+            <p style="font-size: 16px; color: var(--text-sec); font-weight: 600;">No Roadmaps Added Yet</p>
+            <p style="font-size: 13px; color: var(--text-sec); margin-top: 8px;">Go to the Dashboard and paste a YouTube tutorial URL to generate a custom roadmap!</p>
+            <button class="btn" onclick="switchTab('dashboard')" style="margin-top: 20px; width: auto; display: inline-block; padding: 10px 24px;">Go to Dashboard</button>
           </div>
         `;
         return;
       }
 
-      let stationsHtml = '';
-      const checkedSubtopics = JSON.parse(localStorage.getItem('cp_checked_subtopics')) || {};
+      // Find first uncompleted item globally to mark as current stop
+      const currentItem = FLAT_ITEMS.find(item => !completedTopics.includes(item.id));
+      const notesObj = JSON.parse(localStorage.getItem('codepath_notes')) || {};
+      const isDesktop = window.innerWidth >= 768;
 
-      dbTopics.forEach(topic => {
-        let subtopicsArray = [];
-        try {
-          subtopicsArray = typeof topic.subtopics === 'string' ? JSON.parse(topic.subtopics) : topic.subtopics;
-        } catch (e) {
-          subtopicsArray = topic.subtopics || [];
-        }
-
-        let checkedCount = 0;
-        subtopicsArray.forEach(sub => {
-          if (checkedSubtopics[sub.id]) {
-            checkedCount++;
-          }
-        });
-
-        // Determine if topic is complete from user_progress first, fallback to checking if all subtopics checked
-        const progressRecord = dbUserProgress.find(p => p.topic_id === topic.id);
-        let isTopicDone = progressRecord ? progressRecord.completed : false;
-        
-        // Auto-complete if all subtopics are checked (this syncs visual load status)
-        if (subtopicsArray.length > 0 && checkedCount === subtopicsArray.length) {
-          isTopicDone = true;
-        }
-
-        const isExpanded = !!expandedStations[topic.id];
-
-        const subtopicsHtml = subtopicsArray.map(sub => {
-          const isChecked = !!checkedSubtopics[sub.id];
-          return `
-            <label class="subtopic-checkbox-label">
-              <input type="checkbox" onchange="toggleSubtopicCheckbox('${topic.id}', '${sub.id}', this)" ${isChecked ? 'checked' : ''}>
-              <span>${sub.title}</span>
-            </label>
-          `;
-        }).join('');
-
-        stationsHtml += `
-          <div class="spine-station-item ${isTopicDone ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}" id="station-${topic.id}" data-topic-id="${topic.id}">
-            <div class="spine-station-node-container">
-              <div class="spine-station-node" onclick="toggleStation('${topic.id}', event)">
-                <div class="spine-station-node-inner"></div>
+      if (isDesktop) {
+        ROADMAP_DATA.forEach(cat => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'timeline-course-desktop';
+          
+          let itemsHtml = cat.items.map(item => {
+            const isDone = completedTopics.includes(item.id);
+            const isCurrent = currentItem && currentItem.id === item.id;
+            const hasNotes = !!notesObj[item.id];
+            
+            return `
+              <div class="timeline-item-horizontal ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                <div class="timestamp-badge">${item.timestamp}</div>
+                <div class="timeline-node ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}"></div>
+                <div class="timeline-card" onclick="window.open('${item.youtubeUrl}', '_blank')">
+                  <div class="card-left-accent"></div>
+                  <div class="card-content">
+                    <span class="card-item-title">${item.title}</span>
+                    <div class="card-actions">
+                      <span class="item-notes-btn ${hasNotes ? 'has-notes' : ''}" onclick="openNotesModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', event)">Notes</span>
+                      <div class="item-checkbox ${isDone ? 'checked' : ''}" onclick="toggleComplete('${item.id}', event)">${isDone ? '✓' : ''}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
+            `;
+          }).join('');
+
+          catDiv.innerHTML = `
+            <div class="cat-header">
+              <div>
+                <h3 class="cat-title">${cat.title}</h3>
+                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+              </div>
+              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove Course</button>
             </div>
             
-            <div class="spine-station-content" onclick="toggleStation('${topic.id}', event)">
-              <div class="spine-station-header">
-                <h3 class="spine-station-title">${topic.title}</h3>
-                <span class="spine-station-progress-text" id="prog-txt-${topic.id}">
-                  ${checkedCount}/${subtopicsArray.length} Completed
-                </span>
-              </div>
-              
-              <div class="spine-station-subtopics">
-                ${subtopicsHtml}
+            <div class="timeline-scroll-container">
+              <div class="timeline-horizontal-track">
+                ${itemsHtml}
               </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+          container.appendChild(catDiv);
+        });
+      } else {
+        ROADMAP_DATA.forEach(cat => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'timeline-course-mobile';
+          
+          let itemsHtml = cat.items.map((item, index) => {
+            const isDone = completedTopics.includes(item.id);
+            const isCurrent = currentItem && currentItem.id === item.id;
+            const hasNotes = !!notesObj[item.id];
+            const isEven = index % 2 === 0;
+            
+            return `
+              <div class="timeline-item-vertical ${isEven ? 'left' : 'right'} ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                <div class="timestamp-badge-vertical">${item.timestamp}</div>
+                <div class="timeline-node-vertical ${isCurrent ? 'current' : ''}"></div>
+                <div class="timeline-connector-vertical"></div>
+                <div class="timeline-card" onclick="window.open('${item.youtubeUrl}', '_blank')">
+                  <div class="card-left-accent"></div>
+                  <div class="card-content">
+                    <span class="card-item-title">${item.title}</span>
+                    <div class="card-actions">
+                      <span class="item-notes-btn ${hasNotes ? 'has-notes' : ''}" onclick="openNotesModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', event)">Notes</span>
+                      <div class="item-checkbox ${isDone ? 'checked' : ''}" onclick="toggleComplete('${item.id}', event)">${isDone ? '✓' : ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
 
-      container.innerHTML = `
-        <div class="spine-timeline-container">
-          <div class="spine-line">
-            <div class="spine-line-fill" id="spine-line-fill"></div>
-          </div>
-          <div class="spine-stations-list">
-            ${stationsHtml}
-          </div>
-        </div>
-      `;
-
-      setTimeout(updateSpineFill, 100);
+          catDiv.innerHTML = `
+            <div class="cat-header">
+              <div>
+                <h3 class="cat-title">${cat.title}</h3>
+                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+              </div>
+              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove</button>
+            </div>
+            
+            <div class="timeline-vertical-container">
+              <div class="timeline-vertical-track">
+                ${itemsHtml}
+              </div>
+            </div>
+          `;
+          container.appendChild(catDiv);
+        });
+      }
     }
-
-    // Toggle Station Expand/Collapse
-    window.toggleStation = function(topicId, event) {
-      if (event && event.target.closest('.spine-station-subtopics')) {
-        return;
-      }
-      const stationEl = document.getElementById(`station-${topicId}`);
-      if (!stationEl) return;
-
-      const isExpanded = stationEl.classList.contains('expanded');
-      if (isExpanded) {
-        stationEl.classList.remove('expanded');
-        expandedStations[topicId] = false;
-      } else {
-        stationEl.classList.add('expanded');
-        expandedStations[topicId] = true;
-      }
-
-      setTimeout(updateSpineFill, 400); // Wait for transition
-    };
-
-    // Toggle Subtopic Checkbox and Sync completion to Supabase
-    window.toggleSubtopicCheckbox = async function(topicId, subtopicId, checkbox) {
-      const isChecked = checkbox.checked;
-
-      // Save state to local storage
-      let checkedSubtopics = JSON.parse(localStorage.getItem('cp_checked_subtopics')) || {};
-      if (isChecked) {
-        checkedSubtopics[subtopicId] = true;
-      } else {
-        delete checkedSubtopics[subtopicId];
-      }
-      localStorage.setItem('cp_checked_subtopics', JSON.stringify(checkedSubtopics));
-
-      const topic = dbTopics.find(t => t.id === topicId);
-      if (!topic) return;
-
-      let subtopicsArray = [];
-      try {
-        subtopicsArray = typeof topic.subtopics === 'string' ? JSON.parse(topic.subtopics) : topic.subtopics;
-      } catch (e) {
-        subtopicsArray = topic.subtopics || [];
-      }
-
-      let checkedCount = 0;
-      subtopicsArray.forEach(sub => {
-        if (checkedSubtopics[sub.id]) {
-          checkedCount++;
-        }
-      });
-
-      // Update progress label
-      const progressTextEl = document.getElementById(`prog-txt-${topicId}`);
-      if (progressTextEl) {
-        progressTextEl.innerText = `${checkedCount}/${subtopicsArray.length} Completed`;
-      }
-
-      const stationEl = document.getElementById(`station-${topicId}`);
-      const isTopicCompleted = subtopicsArray.length > 0 && checkedCount === subtopicsArray.length;
-
-      const cpUser = JSON.parse(localStorage.getItem('cp_user')) || { username: 'Bhavik' };
-      const username = cpUser.username;
-
-      // Compute array of checked subtopic IDs for this topic
-      const checkedIdsForTopic = subtopicsArray
-        .filter(sub => checkedSubtopics[sub.id])
-        .map(sub => sub.id);
-      
-      const notesJson = JSON.stringify(checkedIdsForTopic);
-
-      if (isTopicCompleted) {
-        stationEl.classList.add('completed');
-      } else {
-        stationEl.classList.remove('completed');
-      }
-
-      // Save progress to Supabase
-      try {
-        await supabaseClient
-          .from('user_progress')
-          .upsert({
-            username: username,
-            topic_id: topicId,
-            completed: isTopicCompleted,
-            notes: notesJson
-          }, { onConflict: 'username,topic_id' });
-      } catch (err) {
-        console.error('Error saving progress to Supabase:', err);
-      }
-
-      // Update local storage 'codepath_completed' list for general app compatibility
-      let completedTopics = JSON.parse(localStorage.getItem('codepath_completed')) || [];
-      if (isTopicCompleted) {
-        if (!completedTopics.includes(topicId)) {
-          completedTopics.push(topicId);
-        }
-      } else {
-        completedTopics = completedTopics.filter(id => id !== topicId);
-      }
-      localStorage.setItem('codepath_completed', JSON.stringify(completedTopics));
-
-      // Update dashboard values
-      updateDashboardState();
-
-      // Update spine fill
-      updateSpineFill();
-    };
-
-    window.updateSpineFill = function() {
-      const fillEl = document.getElementById('spine-line-fill');
-      if (!fillEl) return;
-
-      const stations = document.querySelectorAll('.spine-station-item');
-      let lastCompletedIndex = -1;
-
-      stations.forEach((station, index) => {
-        if (station.classList.contains('completed')) {
-          lastCompletedIndex = index;
-        }
-      });
-
-      if (lastCompletedIndex === -1) {
-        fillEl.style.height = '0px';
-      } else {
-        const lastStation = stations[lastCompletedIndex];
-        const nodeEl = lastStation.querySelector('.spine-station-node');
-        if (nodeEl) {
-          const container = document.querySelector('.spine-timeline-container');
-          const nodeRect = nodeEl.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-          const fillHeight = (nodeRect.top + nodeRect.height / 2) - containerRect.top;
-          fillEl.style.height = `${fillHeight}px`;
-        }
-      }
-
-      // Sync overall progress percentage in UI
-      const total = stations.length;
-      const completed = document.querySelectorAll('.spine-station-item.completed').length;
-      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-      
-      const sideProg = document.getElementById('sidebar-progress');
-      if (sideProg) sideProg.innerText = percentage + '%';
-      
-      const dashProg = document.getElementById('dashboard-progress');
-      if (dashProg) dashProg.innerText = percentage + '%';
-    };
-
-    // Add event listener to recalculate spine fill on resize
-    window.addEventListener('resize', () => {
-      const container = document.getElementById('screen-roadmap');
-      if (container && container.style.display !== 'none') {
-        updateSpineFill();
-      }
-    });
 
     // Notes Modal actions
     function openNotesModal(itemId, itemTitle, event) {
@@ -2715,40 +1935,205 @@
       }
     });
 
-    // Initialize all app data from API
-    async function initData() {
-      try {
-        const res = await fetch('http://localhost:3000/videos');
-        if (res.ok) {
-          dynamicCourses = await res.json();
+    // Helper to get today's date string
+    function getTodayDateString() {
+      const today = new Date();
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+
+    // Check and update streak
+    function checkAndUpdateStreak() {
+      const todayStr = getTodayDateString();
+      const lastActive = localStorage.getItem('cp_last_active');
+      const savedStreakStr = localStorage.getItem('cp_streak');
+      let currentStreak = savedStreakStr ? parseInt(savedStreakStr, 10) || 0 : 0;
+
+      if (lastActive) {
+        const dToday = new Date(todayStr + 'T00:00:00');
+        const dLast = new Date(lastActive + 'T00:00:00');
+        const diffTime = dToday - dLast;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          const lastIncrementedDate = localStorage.getItem('cp_last_streak_increment_date');
+          if (lastIncrementedDate !== todayStr) {
+            currentStreak += 1;
+            localStorage.setItem('cp_streak', String(currentStreak));
+            localStorage.setItem('cp_last_streak_increment_date', todayStr);
+          }
+        } else if (diffDays > 1) {
+          currentStreak = 0;
+          localStorage.setItem('cp_streak', String(currentStreak));
+        }
+      } else {
+        // No last active date exists yet, keep streak as is
+      }
+      
+      const ds1 = document.getElementById('dashboard-streak');
+      const ds2 = document.getElementById('sidebar-streak');
+      const streakText = `${currentStreak} Days`;
+      if (ds1) ds1.innerText = streakText;
+      if (ds2) ds2.innerText = streakText;
+    }
+
+    // Onboarding check and flow logic
+    function checkOnboarding() {
+      const cpUserStr = localStorage.getItem('cp_user');
+      const overlay = document.getElementById('onboarding-overlay');
+      
+      if (!cpUserStr) {
+        if (overlay) {
+          overlay.style.display = 'flex';
+        }
+        
+        const continueBtn = document.getElementById('onboarding-continue-btn');
+        const nameInput = document.getElementById('onboarding-username-input');
+        
+        if (continueBtn && nameInput) {
+          continueBtn.addEventListener('click', () => {
+            const username = nameInput.value.trim();
+            if (username) {
+              document.getElementById('onboarding-step-1').style.display = 'none';
+              document.getElementById('onboarding-step-2').style.display = 'block';
+              
+              const tiles = document.querySelectorAll('.goal-tile');
+              tiles.forEach(tile => {
+                const newTile = tile.cloneNode(true);
+                tile.parentNode.replaceChild(newTile, tile);
+                newTile.addEventListener('click', () => {
+                  const track = newTile.getAttribute('data-track');
+                  const userData = { username, track };
+                  localStorage.setItem('cp_user', JSON.stringify(userData));
+                  if (overlay) {
+                    overlay.style.display = 'none';
+                  }
+                  
+                  const welcomeUsername = document.getElementById('welcome-username');
+                  if (welcomeUsername) {
+                    welcomeUsername.innerText = username;
+                  }
+                  initData();
+                });
+              });
+            } else {
+              alert('Please enter your name to continue!');
+            }
+          });
           
-          // Format into ROADMAP_DATA structure
-          ROADMAP_DATA = dynamicCourses.map(video => ({
-            id: video.videoId,
-            title: video.title,
-            channelTitle: video.channelTitle,
-            items: video.chapters.map(chap => ({
-              id: `${video.videoId}_${chap.seconds}`,
-              title: chap.title,
-              timestamp: chap.timestamp,
-              seconds: chap.seconds,
-              youtubeUrl: `https://www.youtube.com/watch?v=${video.videoId}&t=${chap.seconds}s`
-            }))
-          }));
+          nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              continueBtn.click();
+            }
+          });
+        }
+      } else {
+        if (overlay) {
+          overlay.style.display = 'none';
+        }
+        
+        let cpUser;
+        try {
+          cpUser = JSON.parse(cpUserStr);
+        } catch (e) {
+          console.error(e);
+        }
+        
+        const welcomeUsername = document.getElementById('welcome-username');
+        if (welcomeUsername && cpUser && cpUser.username) {
+          welcomeUsername.innerText = cpUser.username;
+        }
+        initData();
+      }
+      
+      checkAndUpdateStreak();
+    }
+
+    // Initialize all app data from Supabase
+    async function initData() {
+      // 1. Load from cache first for instant load
+      const cachedTopics = localStorage.getItem('cp_topics');
+      if (cachedTopics) {
+        try {
+          ROADMAP_DATA = JSON.parse(cachedTopics);
+          FLAT_ITEMS = ROADMAP_DATA.reduce((acc, cat) => {
+            return [...acc, ...cat.items.map(item => ({ ...item, categoryTitle: cat.title }))];
+          }, []);
+          renderRoadmap();
+          updateDashboardState();
+        } catch (e) {
+          console.error('Error loading cached topics:', e);
+        }
+      }
+
+      // 2. Fetch fresh topics from Supabase based on cp_user.track
+      const cpUserStr = localStorage.getItem('cp_user');
+      if (!cpUserStr) return;
+      
+      let cpUser;
+      try {
+        cpUser = JSON.parse(cpUserStr);
+      } catch (e) {
+        console.error('Error parsing cp_user:', e);
+        return;
+      }
+      
+      if (!cpUser || !cpUser.track) return;
+      const userTrack = cpUser.track;
+
+      try {
+        const { data: topics, error: topicsError } = await supabaseClient
+          .from('topics')
+          .select('*, tracks!inner(track_type, title)')
+          .eq('tracks.track_type', userTrack)
+          .order('order_index', { ascending: true });
+
+        if (topicsError) throw topicsError;
+
+        if (topics && topics.length > 0) {
+          ROADMAP_DATA = topics.map(topic => {
+            const subtopics = typeof topic.subtopics === 'string' ? JSON.parse(topic.subtopics) : (topic.subtopics || []);
+            const resources = typeof topic.resources === 'string' ? JSON.parse(topic.resources) : (topic.resources || []);
+            
+            return {
+              id: topic.id,
+              title: topic.title,
+              channelTitle: topic.tracks ? topic.tracks.title : 'CodePath',
+              items: subtopics.map((sub, idx) => {
+                let url = '';
+                if (resources && resources.length > 0) {
+                  const matchedResource = resources.find(r => r.order_index === sub.order_index) || resources[idx] || resources[0];
+                  if (matchedResource && matchedResource.url) {
+                    url = matchedResource.url;
+                  }
+                }
+                if (!url) {
+                  url = `https://www.google.com/search?q=${encodeURIComponent(sub.title)}`;
+                }
+                return {
+                  id: sub.id || `${topic.id}_sub_${idx}`,
+                  title: sub.title,
+                  timestamp: `Step ${idx + 1}`,
+                  seconds: idx,
+                  youtubeUrl: url
+                };
+              })
+            };
+          });
 
           // Compute FLAT_ITEMS list
           FLAT_ITEMS = ROADMAP_DATA.reduce((acc, cat) => {
             return [...acc, ...cat.items.map(item => ({ ...item, categoryTitle: cat.title }))];
           }, []);
+
+          // Cache in localStorage
+          localStorage.setItem('cp_topics', JSON.stringify(ROADMAP_DATA));
         }
       } catch (err) {
-        console.warn('Backend server down, showing empty roadmap state.', err);
-        ROADMAP_DATA = [];
-        FLAT_ITEMS = [];
+        console.warn('Supabase fetch failed, fallback to cache or empty roadmap state.', err);
       }
 
       // Redraw UI components
-      await renderRoadmap();
+      renderRoadmap();
       updateDashboardState();
     }
 
@@ -2807,17 +2192,8 @@
     }
 
     // Initial load on page ready
-    async function onPageLoad() {
-      const cpUser = localStorage.getItem('cp_user');
-      if (!cpUser) {
-        checkOnboarding();
-      } else {
-        await initializeAppSession();
-        initData();
-        fetchAiProvider();
-      }
-    }
-    onPageLoad();
+    checkOnboarding();
+    fetchAiProvider();
   </script>
 </body>
 </html>

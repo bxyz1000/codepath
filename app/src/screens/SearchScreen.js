@@ -12,7 +12,13 @@ import {
 } from 'react-native';
 import { CONFIG } from '../config';
 
-export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, onClearSearches }) {
+export default function SearchScreen({ 
+  theme, 
+  recentSearches, 
+  onAddSearchQuery, 
+  onClearSearches,
+  savedUrls = []
+}) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -20,6 +26,10 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
 
   const performSearch = async (searchQuery) => {
     if (!searchQuery.trim()) return;
+    if (savedUrls.length === 0) {
+      Alert.alert('No Videos Saved', 'Please add some YouTube videos to your topics first.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -29,13 +39,16 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
     onAddSearchQuery(searchQuery.trim());
 
     try {
-      // Direct call to configured backend service
-      const response = await fetch(`${CONFIG.API_URL}/search-transcript`, {
+      // Call the dynamic multi-video transcript search endpoint
+      const response = await fetch(`${CONFIG.API_URL}/api/search-transcript`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: searchQuery }),
+        body: JSON.stringify({ 
+          query: searchQuery, 
+          urls: savedUrls 
+        }),
       });
 
       const data = await response.json();
@@ -43,7 +56,7 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
       if (response.status === 200) {
         setResult(data);
       } else {
-        setError(data.error || 'No matching transcript found.');
+        setError(data.error || 'No matching transcripts found for your doubt.');
       }
     } catch (err) {
       console.error(err);
@@ -69,30 +82,39 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
         </Text>
       </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={[
-            styles.searchInput,
-            {
-              backgroundColor: theme.card,
-              color: theme.text,
-              borderColor: theme.border
-            }
-          ]}
-          placeholder="e.g., event bubbling, flexbox, box model..."
-          placeholderTextColor={theme.textSecondary}
-          value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={() => performSearch(query)}
-        />
-        <TouchableOpacity
-          style={[styles.searchBtn, { backgroundColor: theme.accent }]}
-          onPress={() => performSearch(query)}
-        >
-          <Text style={styles.searchBtnText}>Search</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Conditional Search Bar or Empty Banner */}
+      {savedUrls.length === 0 ? (
+        <View style={[styles.noVideosCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <Text style={[styles.noVideosText, { color: theme.textSecondary }]}>
+            Add YouTube videos to your topics first, then search your doubts here
+          </Text>
+        </View>
+      ) : (
+        /* Search Bar */
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.border
+              }
+            ]}
+            placeholder="e.g., event bubbling, flexbox, box model..."
+            placeholderTextColor={theme.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={() => performSearch(query)}
+          />
+          <TouchableOpacity
+            style={[styles.searchBtn, { backgroundColor: theme.accent }]}
+            onPress={() => performSearch(query)}
+          >
+            <Text style={styles.searchBtnText}>Search</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Loading state */}
       {loading && (
@@ -109,29 +131,36 @@ export default function SearchScreen({ theme, recentSearches, onAddSearchQuery, 
         </View>
       )}
 
-      {/* Search results */}
-      {result && (
-        <View style={[styles.resultCard, { backgroundColor: theme.card, borderColor: theme.success }]}>
-          <View style={styles.resultHeader}>
-            <Text style={[styles.courseName, { color: theme.accent }]}>{result.courseName.toUpperCase()}</Text>
-            <View style={[styles.badge, { backgroundColor: theme.success }]}>
-              <Text style={styles.badgeText}>{result.timestamp}</Text>
+      {/* Search results list */}
+      {result && Array.isArray(result) && result.length > 0 && (
+        <View style={styles.resultsContainer}>
+          <Text style={[styles.resultsSectionHeader, { color: theme.textSecondary }]}>Search Results</Text>
+          {result.map((item, index) => (
+            <View key={index} style={[styles.resultCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <View style={styles.resultHeader}>
+                <Text style={[styles.courseName, { color: theme.accent }]}>MATCH #{index + 1}</Text>
+                <View style={[styles.badge, { backgroundColor: theme.success }]}>
+                  <Text style={styles.badgeText}>{item.timestamp}</Text>
+                </View>
+              </View>
+
+              <Text style={[styles.videoTitle, { color: theme.text }]} numberOfLines={1}>
+                {item.videoTitle}
+              </Text>
+
+              <View style={[styles.matchContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                <Text style={[styles.matchLabel, { color: theme.textSecondary }]}>TRANSCRIPT PREVIEW:</Text>
+                <Text style={[styles.matchText, { color: theme.text }]}>"{item.matchText}"</Text>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.youtubeBtn, { backgroundColor: '#e52d27' }]}
+                onPress={() => handleOpenLink(item.youtubeUrl)}
+              >
+                <Text style={styles.youtubeBtnText}>Jump to Timestamp</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-
-          <Text style={[styles.videoTitle, { color: theme.text }]}>{result.videoTitle}</Text>
-
-          <View style={[styles.matchContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
-            <Text style={[styles.matchLabel, { color: theme.textSecondary }]}>TRANSCRIPT PREVIEW:</Text>
-            <Text style={[styles.matchText, { color: theme.text }]}>"{result.matchText}"</Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.youtubeBtn, { backgroundColor: '#e52d27' }]}
-            onPress={() => handleOpenLink(result.youtubeUrl)}
-          >
-            <Text style={styles.youtubeBtnText}>Open in YouTube</Text>
-          </TouchableOpacity>
+          ))}
         </View>
       )}
 
@@ -224,6 +253,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600'
   },
+  noVideosCard: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 14,
+    padding: 24,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  noVideosText: {
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 18
+  },
   errorCard: {
     borderWidth: 1.5,
     borderRadius: 12,
@@ -236,11 +280,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 18
   },
+  resultsContainer: {
+    marginBottom: 24
+  },
+  resultsSectionHeader: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 12
+  },
   resultCard: {
     borderWidth: 1.5,
     borderRadius: 16,
     padding: 18,
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
@@ -269,7 +323,7 @@ const styles = StyleSheet.create({
     fontWeight: '900'
   },
   videoTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     marginBottom: 12
   },

@@ -4,7 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const transcripts = require('./transcripts');
-const { getVideoRoadmap } = require('./youtube-service');
+const { getVideoRoadmap, fetchTranscript, extractVideoId } = require('./youtube-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -289,6 +289,99 @@ app.get('/health', (req, res) => {
     staticCoursesSeeded: transcripts.length,
     dynamicVideosAdded: currentVideos.length 
   });
+});
+
+/**
+ * Helper to fetch video title via oEmbed
+ */
+async function getTitleViaOEmbed(url) {
+  try {
+    const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.title || 'YouTube Video';
+    }
+  } catch (err) {
+    console.error('oEmbed fetch failed for title:', err);
+  }
+  return 'YouTube Video';
+}
+
+/**
+ * POST /api/search-transcript
+ * Searches user-saved YouTube videos transcripts dynamically
+ */
+app.post('/api/search-transcript', async (req, res) => {
+  const { query, urls } = req.body;
+  if (!query || typeof query !== 'string' || query.trim() === '') {
+    return res.status(400).json({ error: 'Query parameter is required' });
+  }
+  if (!urls || !Array.isArray(urls) || urls.length === 0) {
+    return res.status(400).json({ error: 'At least one YouTube URL is required' });
+  }
+
+  const cleanQuery = query.toLowerCase().trim();
+  const allMatches = [];
+
+  try {
+    for (const url of urls) {
+      const videoId = extractVideoId(url);
+      if (!videoId) continue;
+
+      console.log(`[Search-Transcript API] Fetching transcript for video: ${videoId}`);
+      const segments = await fetchTranscript(videoId);
+      if (!segments || segments.length === 0) continue;
+
+      const videoTitle = await getTitleViaOEmbed(url);
+
+      for (const segment of segments) {
+        const text = segment.text.toLowerCase();
+        let score = 0;
+
+        if (text.includes(cleanQuery)) {
+          score += 100;
+        }
+
+        const queryWords = cleanQuery.split(/\s+/);
+        queryWords.forEach(word => {
+          if (word.length > 2 && text.includes(word)) {
+            score += 10;
+          }
+        });
+
+        if (score > 0) {
+          allMatches.push({
+            score,
+            videoTitle,
+            matchText: segment.text,
+            timestamp: segment.timestamp,
+            seconds: segment.seconds,
+            youtubeUrl: `https://www.youtube.com/watch?v=${videoId}&t=${segment.seconds}s`
+          });
+        }
+      }
+    }
+
+    // Sort matches by score desc
+    allMatches.sort((a, b) => b.score - a.score);
+
+    // Get top 3
+    const top3 = allMatches.slice(0, 3).map(m => ({
+      videoTitle: m.videoTitle,
+      matchText: m.matchText,
+      timestamp: m.timestamp,
+      youtubeUrl: m.youtubeUrl
+    }));
+
+    if (top3.length === 0) {
+      return res.status(404).json({ error: 'No matching context found in the transcripts.' });
+    }
+
+    return res.json(top3);
+  } catch (err) {
+    console.error('Error in search transcript API:', err);
+    return res.status(500).json({ error: 'An error occurred while searching transcripts.' });
+  }
 });
 
 app.listen(PORT, () => {

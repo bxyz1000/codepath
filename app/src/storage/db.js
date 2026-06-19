@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEYS = {
   COMPLETED: 'codepath_completed_topics',
+  COMPLETED_SUBS: 'codepath_completed_subtopics',
   NOTES: 'codepath_notes',
   PREFS: 'codepath_preferences',
   SEARCHES: 'codepath_recent_searches'
@@ -24,6 +25,25 @@ export const StorageService = {
       await AsyncStorage.setItem(KEYS.COMPLETED, JSON.stringify(topics));
     } catch (e) {
       console.error('Error saving completed topics', e);
+    }
+  },
+
+  // Subtopics Progress
+  async getCompletedSubtopics() {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.COMPLETED_SUBS);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('Error reading completed subtopics', e);
+      return [];
+    }
+  },
+
+  async saveCompletedSubtopics(subtopics) {
+    try {
+      await AsyncStorage.setItem(KEYS.COMPLETED_SUBS, JSON.stringify(subtopics));
+    } catch (e) {
+      console.error('Error saving completed subtopics', e);
     }
   },
 
@@ -89,6 +109,7 @@ export const StorageService = {
   async resetAll() {
     try {
       await AsyncStorage.removeItem(KEYS.COMPLETED);
+      await AsyncStorage.removeItem(KEYS.COMPLETED_SUBS);
       await AsyncStorage.removeItem(KEYS.NOTES);
       await AsyncStorage.removeItem(KEYS.SEARCHES);
     } catch (e) {
