@@ -11,8 +11,8 @@ const path = require('path');
 // Load environment variables if .env exists
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://uxtsuagcuyjspyhyhxdz.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4dHN1YWdjdXlqc3B5aHloeGR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NDc4NDUsImV4cCI6MjA5NzQyMzg0NX0.6zGWM782kE2HezROUA646wc9AGxVg0VyumvdnbvtYDM';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 

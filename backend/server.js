@@ -6,11 +6,15 @@ const path = require('path');
 const transcripts = require('./transcripts');
 const { getVideoRoadmap, fetchTranscript, extractVideoId } = require('./youtube-service');
 
+// Read Supabase credentials from process.env
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 let currentAiProvider = process.env.AI_PROVIDER || 'groq';
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Set up directory for dynamic transcripts and metadata

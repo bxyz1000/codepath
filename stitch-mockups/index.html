@@ -1525,8 +1525,10 @@
     }
 
     // Toggle completion checkbox
-    function toggleComplete(itemId, event) {
+    async function toggleComplete(itemId, event) {
       if (event) event.stopPropagation();
+      const isMarkingComplete = !completedTopics.includes(itemId);
+      
       if (completedTopics.includes(itemId)) {
         completedTopics = completedTopics.filter(id => id !== itemId);
       } else {
@@ -1539,6 +1541,33 @@
       localStorage.setItem('codepath_completed', JSON.stringify(completedTopics));
       renderRoadmap();
       updateDashboardState();
+
+      // Sync to Supabase user_progress table
+      const item = FLAT_ITEMS.find(i => i.id === itemId);
+      if (item && item.topicId) {
+        const cpUserStr = localStorage.getItem('cp_user');
+        if (cpUserStr) {
+          try {
+            const cpUser = JSON.parse(cpUserStr);
+            if (cpUser && cpUser.username) {
+              const { error } = await supabaseClient
+                .from('user_progress')
+                .upsert({
+                  username: cpUser.username,
+                  topic_id: item.topicId,
+                  completed: isMarkingComplete,
+                  updated_at: new Date().toISOString()
+                }, { onConflict: 'username,topic_id' });
+              
+              if (error) {
+                console.error('Error syncing progress to Supabase:', error);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to parse user or sync progress to Supabase:', e);
+          }
+        }
+      }
     }
 
     // Update Dashboard numbers and cards dynamically
@@ -1724,6 +1753,31 @@
 
       if (isDesktop) {
         ROADMAP_DATA.forEach(cat => {
+          let channelDisplay = '';
+          if (cat.isCustom) {
+            channelDisplay = `Channel: ${cat.channelTitle}`;
+          } else {
+            const cpUserStr = localStorage.getItem('cp_user');
+            let trackName = 'Frontend Track'; // fallback
+            if (cpUserStr) {
+              try {
+                const cpUser = JSON.parse(cpUserStr);
+                if (cpUser && cpUser.track) {
+                  const trackNames = {
+                    'frontend': 'Frontend Track',
+                    'projects': 'Projects Track',
+                    'reading': 'Reading Track',
+                    'backend': 'Backend Track'
+                  };
+                  trackName = trackNames[cpUser.track] || (cpUser.track.charAt(0).toUpperCase() + cpUser.track.slice(1) + ' Track');
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            channelDisplay = trackName;
+          }
+
           const catDiv = document.createElement('div');
           catDiv.className = 'timeline-course-desktop';
           
@@ -1754,9 +1808,9 @@
             <div class="cat-header">
               <div>
                 <h3 class="cat-title">${cat.title}</h3>
-                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+                <p class="cat-channel">${channelDisplay}</p>
               </div>
-              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove Course</button>
+              ${cat.isCustom ? `<button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove Course</button>` : ''}
             </div>
             
             <div class="timeline-scroll-container">
@@ -1769,6 +1823,31 @@
         });
       } else {
         ROADMAP_DATA.forEach(cat => {
+          let channelDisplay = '';
+          if (cat.isCustom) {
+            channelDisplay = `Channel: ${cat.channelTitle}`;
+          } else {
+            const cpUserStr = localStorage.getItem('cp_user');
+            let trackName = 'Frontend Track'; // fallback
+            if (cpUserStr) {
+              try {
+                const cpUser = JSON.parse(cpUserStr);
+                if (cpUser && cpUser.track) {
+                  const trackNames = {
+                    'frontend': 'Frontend Track',
+                    'projects': 'Projects Track',
+                    'reading': 'Reading Track',
+                    'backend': 'Backend Track'
+                  };
+                  trackName = trackNames[cpUser.track] || (cpUser.track.charAt(0).toUpperCase() + cpUser.track.slice(1) + ' Track');
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            channelDisplay = trackName;
+          }
+
           const catDiv = document.createElement('div');
           catDiv.className = 'timeline-course-mobile';
           
@@ -1801,9 +1880,9 @@
             <div class="cat-header">
               <div>
                 <h3 class="cat-title">${cat.title}</h3>
-                <p class="cat-channel">Channel: ${cat.channelTitle}</p>
+                <p class="cat-channel">${channelDisplay}</p>
               </div>
-              <button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove</button>
+              ${cat.isCustom ? `<button class="delete-btn" onclick="deleteCourse('${cat.id}')">Remove</button>` : ''}
             </div>
             
             <div class="timeline-vertical-container">
@@ -2048,7 +2127,7 @@
       checkAndUpdateStreak();
     }
 
-    // Initialize all app data from Supabase
+    // Initialize all app data from Supabase and custom backend
     async function initData() {
       // 1. Load from cache first for instant load
       const cachedTopics = localStorage.getItem('cp_topics');
@@ -2080,6 +2159,9 @@
       if (!cpUser || !cpUser.track) return;
       const userTrack = cpUser.track;
 
+      let supabaseRoadmaps = [];
+      let youtubeRoadmaps = [];
+
       try {
         const { data: topics, error: topicsError } = await supabaseClient
           .from('topics')
@@ -2089,8 +2171,8 @@
 
         if (topicsError) throw topicsError;
 
-        if (topics && topics.length > 0) {
-          ROADMAP_DATA = topics.map(topic => {
+        if (topics) {
+          supabaseRoadmaps = topics.map(topic => {
             const subtopics = typeof topic.subtopics === 'string' ? JSON.parse(topic.subtopics) : (topic.subtopics || []);
             const resources = typeof topic.resources === 'string' ? JSON.parse(topic.resources) : (topic.resources || []);
             
@@ -2098,6 +2180,7 @@
               id: topic.id,
               title: topic.title,
               channelTitle: topic.tracks ? topic.tracks.title : 'CodePath',
+              isCustom: false, // Supabase roadmap
               items: subtopics.map((sub, idx) => {
                 let url = '';
                 if (resources && resources.length > 0) {
@@ -2112,6 +2195,7 @@
                 return {
                   id: sub.id || `${topic.id}_sub_${idx}`,
                   title: sub.title,
+                  topicId: topic.id, // Parent topic ID for Supabase syncing
                   timestamp: `Step ${idx + 1}`,
                   seconds: idx,
                   youtubeUrl: url
@@ -2119,18 +2203,44 @@
               })
             };
           });
-
-          // Compute FLAT_ITEMS list
-          FLAT_ITEMS = ROADMAP_DATA.reduce((acc, cat) => {
-            return [...acc, ...cat.items.map(item => ({ ...item, categoryTitle: cat.title }))];
-          }, []);
-
-          // Cache in localStorage
-          localStorage.setItem('cp_topics', JSON.stringify(ROADMAP_DATA));
         }
       } catch (err) {
-        console.warn('Supabase fetch failed, fallback to cache or empty roadmap state.', err);
+        console.warn('Supabase fetch failed.', err);
       }
+
+      // Fetch custom YouTube courses from backend
+      try {
+        const res = await fetch('http://localhost:3000/videos');
+        if (res.ok) {
+          const dynamicCourses = await res.json();
+          youtubeRoadmaps = dynamicCourses.map(video => ({
+            id: video.videoId,
+            title: video.title,
+            channelTitle: video.channelTitle,
+            isCustom: true, // Manually added YouTube course
+            items: video.chapters.map(chap => ({
+              id: `${video.videoId}_${chap.seconds}`,
+              title: chap.title,
+              topicId: video.videoId,
+              timestamp: chap.timestamp,
+              seconds: chap.seconds,
+              youtubeUrl: `https://www.youtube.com/watch?v=${video.videoId}&t=${chap.seconds}s`
+            }))
+          }));
+        }
+      } catch (err) {
+        console.warn('Backend server down, showing only Supabase roadmaps.', err);
+      }
+
+      ROADMAP_DATA = [...supabaseRoadmaps, ...youtubeRoadmaps];
+
+      // Compute FLAT_ITEMS list
+      FLAT_ITEMS = ROADMAP_DATA.reduce((acc, cat) => {
+        return [...acc, ...cat.items.map(item => ({ ...item, categoryTitle: cat.title }))];
+      }, []);
+
+      // Cache in localStorage
+      localStorage.setItem('cp_topics', JSON.stringify(ROADMAP_DATA));
 
       // Redraw UI components
       renderRoadmap();
